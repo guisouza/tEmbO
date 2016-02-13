@@ -54,11 +54,11 @@
             limit : 10
         }
       },
-      vamoMano : function(){
+      add : function(){
         limit = ++this.state.limit
         this.setState({limit:limit})
       },
-      vamoMano2 : function(){
+      remove : function(){
         limit = --this.state.limit
         this.setState({limit:limit})
       },
@@ -67,14 +67,14 @@
         x = 0;
         this.els.push(React.createElement('button',{
           key : -2,
-          onClick : this.vamoMano.bind(this)
+          onClick : this.add.bind(this)
         },
-      'ai caralho'));
+      '+'));
       this.els.push(React.createElement('button',{
         key : -1,
-        onClick : this.vamoMano2.bind(this)
+        onClick : this.remove.bind(this)
       },
-    'ai caralho2'));
+    '-'));
         while(x<this.state.limit){
           this.els.push(React.createElement(myElement,{key : x}))
           x++
