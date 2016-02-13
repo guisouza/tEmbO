@@ -1,7 +1,7 @@
 ![Alt text](http://i.imgur.com/osPnYVh.png)
 # Tembo
 
-Tembo is my own react-like rendering implementation in 4kb.
+Tembo is my own react-like rendering engine implementation in 4kb.
 
 # [Live Demo / Performance Test](https://s3-sa-east-1.amazonaws.com/tembojs/perf.html)
 
