@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      .teste{
+        width: 40px;
+        height: 40px;
+        display: block;
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="../dist/Tembo.min.js"></script>
+    <div id="content">
+    </div>
+    <script type="text/javascript">
+
+      var React = Tembo;
+      var myElement = React.createClass({
+        getInitialState : function(){
+          setInterval(function(){
+            this.setState({
+              red:(Math.round(Math.random()*255)).toString(),
+              green:(Math.round(Math.random()*255)).toString(),
+              blue:(Math.round(Math.random()*255)).toString()
+            })
+          }.bind(this),10)
+          return {
+            red : 255,
+            green : 0,
+            blue : 0
+          }
+        },
+      
+        render : function(){
+          return React.createElement('div',{class:'teste',style:"background-color:rgb("+this.state.red+","+this.state.green+","+this.state.blue+");"},'')
+        }
+      })
+      
+      var myCollection = React.createClass({
+        getInitialState : function(){
+          return {
+              limit : 10
+          }
+        },
+        vamoMano : function(){
+          limit = ++this.state.limit
+          this.setState({limit:limit})
+        },
+        vamoMano2 : function(){
+          limit = --this.state.limit
+          this.setState({limit:limit})
+        },
+        render : function(){
+          this.els = [];
+          x = 0;
+          this.els.push(React.createElement('button',{
+            key : -2,
+            onClick : this.vamoMano.bind(this)
+          },
+        '+'));
+        this.els.push(React.createElement('button',{
+          key : -1,
+          onClick : this.vamoMano2.bind(this)
+        },
+      '-'));
+          while(x<this.state.limit){
+            this.els.push(React.createElement(myElement,{key : x}))
+            x++
+          }
+          return React.createElement('div',{},this.els)
+        }
+      })
+
+      React.render(React.createElement(myCollection,{},false), document.getElementById('content'));
+
+
+
+
+
+    </script>
+  </body>
+</html>
