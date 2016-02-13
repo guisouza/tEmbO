@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "Tembo",
   "author": "Guilherme (Coder) de Souza",
-  "homepage": "https://github.com/guisouza/dss",
+  "homepage": "https://github.com/guisouza/tembo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/guisouza/dss.git"
+    "url": "https://github.com/guisouza/tembo.git"
   },
-  "main": "dist/dss.min.js",
+  "main": "dist/tembo.min.js",
   "scripts": {
     "test": "grunt"
   },
