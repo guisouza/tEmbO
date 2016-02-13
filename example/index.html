@@ -5,15 +5,18 @@
     <title></title>
     <style media="screen">
       .teste{
-        width: 40px;
-        height: 40px;
+        width: 5px;
+        height: 5px;
         display: block;
         float: left;
       }
     </style>
   </head>
   <body>
+    <script type="text/javascript" src="react/react.js"></script>
+    <script type="text/javascript" src="react/reactdom.js"></script>
     <script type="text/javascript" src="../dist/Tembo.min.js"></script>
+    Tembo
     <div id="content">
     </div>
     <script type="text/javascript">
@@ -41,46 +44,31 @@
       })
       
       var myCollection = Tembo.createClass({
-        getInitialState : function(){
-          return {
-              limit : 1
-          }
-        },
-        add : function(){
-          limit = ++this.state.limit
-          this.setState({limit:this.state.limit})
-        },
-        remove : function(){
-          limit = --this.state.limit
-          this.setState({limit:this.state.limit})
-        },
-        render : function(){
-
-          this.els = [];
-          x = 0;
-          this.els.push(Tembo.createElement('button',{
-            key : -2,
-            onClick : this.add.bind(this)
-          },
-        '+'));
-        this.els.push(Tembo.createElement('button',{
-          key : -1,
-          onClick : this.remove.bind(this)
-        },
-      '-'));
-          while(x<this.state.limit){
-            this.els.push(Tembo.createElement(myElement,{key : x}))
-            x++
-          }
-          return Tembo.createElement('div',{},this.els)
+      getInitialState : function(){
+        return {
+            limit : 500
         }
-      })
+      },
+      add : function(){
+        limit = ++this.state.limit
+        this.setState({limit:limit})
+      },
+      remove : function(){
+        limit = --this.state.limit
+        this.setState({limit:limit})
+      },
+      render : function(){
+        this.els = [];
+        x = 0;
+        while(x<this.state.limit){
+          this.els.push(Tembo.createElement(myElement,{key : x}))
+          x++
+        }
+        return Tembo.createElement('div',{},this.els)
+      }
+    })
 
       Tembo.render(Tembo.createElement(myCollection,{},false), document.getElementById('content'));
-      // Tembo.render(Tembo.createElement(myElement,{},false), document.getElementById('content'));
-
-
-
 
 
     </script>

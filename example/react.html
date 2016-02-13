@@ -5,14 +5,15 @@
     <title></title>
     <style media="screen">
     .teste{
-      width: 40px;
-      height: 40px;
+        width: 5px;
+        height: 5px;
       display: block;
       float: left;
     }
     </style>
   </head>
   <body>
+  React
     <div id="content">
 
     </div>
@@ -51,7 +52,7 @@
     var myCollection = React.createClass({
       getInitialState : function(){
         return {
-            limit : 10
+            limit : 500
         }
       },
       add : function(){
@@ -65,16 +66,6 @@
       render : function(){
         this.els = [];
         x = 0;
-        this.els.push(React.createElement('button',{
-          key : -2,
-          onClick : this.add.bind(this)
-        },
-      '+'));
-      this.els.push(React.createElement('button',{
-        key : -1,
-        onClick : this.remove.bind(this)
-      },
-    '-'));
         while(x<this.state.limit){
           this.els.push(React.createElement(myElement,{key : x}))
           x++
