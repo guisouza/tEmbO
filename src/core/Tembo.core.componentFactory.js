@@ -19,6 +19,7 @@
       // }
       // this.instance = renderResult;
       renderResult.component = this;
+
       return renderResult;
     };
 
@@ -39,7 +40,6 @@
       Tembo._.deeplyCompare(this.instance,this.render());
 
     };
-
     return TemboComponent;
   };
 

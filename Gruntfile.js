@@ -26,14 +26,10 @@ module.exports = function(grunt) {
     dist: {
       src: [
         'src/Tembo.js',
-        'src/Tembo.Component.js',
-        'src/Tembo.DOMElement.js',
         'src/core/*.js',
         'src/interface/*.js',
-        'src/helpers/*.js',
-        'src/defaultProperties/*.js'
       ],
-      dest: 'dist/tambo.js'
+      dest: 'dist/tembo.js'
     }
   }
 
@@ -43,12 +39,12 @@ module.exports = function(grunt) {
   config.uglify = {};
   config.uglify.all = {
     files: {
-      'dist/tambo.min.js': [ 'dist/tambo.js' ]
+      'dist/tembo.min.js': [ 'dist/tembo.js' ]
     },
     options: {
       preserveComments: false,
-      sourceMap: 'dist/tambo.min.map',
-      sourceMappingURL: 'tambo.min.map',
+      sourceMap: 'dist/tembo.min.map',
+      sourceMappingURL: 'tembo.min.map',
       report: 'min',
       beautify: {
         ascii_only: true

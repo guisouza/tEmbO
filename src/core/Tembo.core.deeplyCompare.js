@@ -23,6 +23,7 @@ Tembo._.upCall = function(lifecycleMethod,instance){
   };
 
   Tembo._.patchChildren = function(instance,newInstance){
+
     var SilentDiff = {};
     Array.prototype.forEach.call(instance.children,function(element){
       if (!SilentDiff[element.getAttribute('data-tamboId')])

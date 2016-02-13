@@ -17,9 +17,8 @@
 (function(Tembo){
   'use strict';
   Tembo._.can('render',function(component,element){
-
     component.instance = Tembo.renderTree(component);
-    Tembo.append(element,component.instance);
+    Tembo.appendChild(element,component.instance);
 
   });
 })(this.Tembo);

@@ -8,6 +8,7 @@
     }else{
       Tembo.appendChild(element,content);
     }
+
     return element;
 
   });
@@ -16,7 +17,6 @@
 
   Tembo._.can('appendChild',function(element,content){
     content.parent = element;
-
     if (element.getAttribute('data-tamboId') === null){
         element.setAttribute('data-tamboId','$0');
     }
@@ -82,6 +82,7 @@
 
   'use strict';
   Tembo._.can('createElement',function(element,props,content){
+
     if (!props)
       props = {};
 
