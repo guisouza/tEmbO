@@ -7,7 +7,7 @@ Tembo is my own react-like rendering implementation in 4kb.
 
 # API
 
-##### Tembo.createClass(<component spec>)
+##### Tembo.createClass(componentSpec)
 ```javscript
 const Message = Tembo.createClass({
         getInitialState : function(){
@@ -20,11 +20,11 @@ const Message = Tembo.createClass({
         }
       })
 ```
-##### Tembo.createElement(<temboComponentClass || domNodeName>,<props>,<children>)
+##### Tembo.createElement(temboComponentClass || domNodeName,props,children)
 ```javscript
     Tembo.createElement('div',{},'hello world')
 ```
-##### Tembo.render(<temboComponent>, <DOMNode>)
+##### Tembo.render(temboComponent, DOMNode)
 ```javscript
     const component = Tembo.createElement(myMessage,{},false)
     Tembo.render(component, document.getElementById('content'));
