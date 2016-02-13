@@ -6,7 +6,7 @@ Tembo._.upCall = function(lifecycleMethod,instance){
       Tembo._.upCall(lifecycleMethod,instance.component);
     }
   }else{
-    console.log('if your code reach this line, send-me a e-mail gui_souza@.me.com . I would love to work with you in my new project');
+    console.log('if your code reach this line, send-me a e-mail gui_souza@me.com . I would love to work with you in my new project');
   }
 };
 
