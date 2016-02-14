@@ -25,7 +25,7 @@ const Message = Tembo.createClass({
   Tembo.createElement('div', {}, 'hello world')
 ```
 ##### Tembo.render(temboComponent, DOMNode)
-```javscript
-    const component = Tembo.createElement(myMessage,{},false)
-    Tembo.render(component, document.getElementById('content'));
+```javascript
+  const component = Tembo.createElement(myMessage, {}, false)
+  Tembo.render(component, document.getElementById('content'))
 ```
