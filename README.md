@@ -8,24 +8,24 @@ Tembo is my own react-like rendering engine implementation in 4kb.
 # API
 
 ##### Tembo.createClass(componentSpec)
-```javscript
+```javascript
 const Message = Tembo.createClass({
-        getInitialState : function(){
-          return {
-            message : 'Hello Word'
-          }
-        },
-        render : function(){
-          return Tembo.createElement('div',{},this.state.message)
-        }
-      })
+  getInitialState: function() {
+    return {
+      message: 'Hello Word'
+    }
+  },
+  render: function() {
+    return Tembo.createElement('div', {}, this.state.message)
+  }
+})
 ```
 ##### Tembo.createElement(temboComponentClass || domNodeName,props,children)
-```javscript
-    Tembo.createElement('div',{},'hello world')
+```javascript
+  Tembo.createElement('div', {}, 'hello world')
 ```
 ##### Tembo.render(temboComponent, DOMNode)
-```javscript
-    const component = Tembo.createElement(myMessage,{},false)
-    Tembo.render(component, document.getElementById('content'));
+```javascript
+  const component = Tembo.createElement(myMessage, {}, false)
+  Tembo.render(component, document.getElementById('content'))
 ```
