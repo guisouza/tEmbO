@@ -1,3 +1,5 @@
+require('setimmediate');
+
 //File : src/Tembo._.componentFactory.js
 
 module.exports = function(Tembo){
@@ -10,7 +12,11 @@ module.exports = function(Tembo){
   });
 
   Tembo._.componentFactory = function(structure){
-    var TemboComponent = function(){};
+    var TemboComponent = function(){
+      this.state = {};
+      this._newState = {};
+      this._stateChanged = false;
+    };
     for(var key in structure){
       var method = structure[key];
       TemboComponent.prototype[key] = method;
@@ -44,13 +50,30 @@ module.exports = function(Tembo){
 
     TemboComponent.prototype.isTemboComponent = true;
     TemboComponent.prototype.setState = function(state){
-      for(key in state){
-        this.state[key] = state[key];
+      var newState = this._newState;
+      var curState = this._curState;
+      Object.keys(state).forEach(function(key){
+        newState[key] = state[key];
+        if (newState[key] === curState[key]){
+          delete newState[key];
+        }
+      });
+
+      var shouldUpdate = Object.keys(newState).length;
+
+      if (!!shouldUpdate === !!this.isUpdating) return;
+      if (shouldUpdate){
+        this.isUpdating = setImmediate(this.reRender.bind(this));
+      }else{
+        clearImmediate(this.isUpdating);
+        this.isUpdating = false;
       }
-
-      Tembo._.deeplyCompare(this.instance,this.render());
-
     };
+
+    TemboComponent.prototype.reRender = function(){
+      Tembo._.deeplyCompare(this.instance,this.render());
+    };
+
     return TemboComponent;
   };
 };
