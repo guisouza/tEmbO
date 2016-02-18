@@ -10,9 +10,8 @@ module.exports = function(Tembo){
     return component;
   });
 
-  Tembo._.can('render',function(component,element){
+  Tembo._.can('render',function(component){
     component.instance = Tembo.renderTree(component);
-    Tembo.appendChild(element,component.instance);
-
+    return Tembo.$.render(component,arguments);
   });
 };

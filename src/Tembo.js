@@ -1,8 +1,9 @@
 //File : src/Tembo.js
 
-var TemboConstructor = function(){
+var TemboConstructor = function(renderer){
   var tembo = {
     _ : {},
+    $ : renderer || require('./renderers/DOM.js'),
     components : {}
   };
   require('./core/Tembo.core.can.js')(tembo);

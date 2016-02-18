@@ -13,18 +13,8 @@ Tembo._.can('attachProps',function(element,props,content){
       }
     element.props.children = content;
   }else{
-    element = document.createElement(element);
+    element = Tembo.$.createElement(element,props);
     element = Tembo.append(element,content);
-    for(var attr in props){
-
-      if (attr.indexOf('on') === 0){
-        var event = attr.replace('on','').toLowerCase();
-        element.addEventListener(event,props[attr],false);
-      }else{
-        if (attr !== 'children')
-        element.setAttribute(attr,props[attr]);
-      }
-    }
   }
   return element;
 });
