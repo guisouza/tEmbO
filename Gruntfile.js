@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   var tasks = [
     'grunt-contrib-jshint',
     'grunt-contrib-concat',
+    'grunt-browserify',
     'grunt-contrib-jasmine',
     'grunt-contrib-watch',
     'grunt-contrib-uglify',
@@ -19,19 +20,31 @@ module.exports = function(grunt) {
     jshintrc : true
   }
 
+  // *********************************************
+  // browserify
+  config.browserify = {
+    dist: {
+      files: {
+        'dist/tembo.js': ['src/Tembo.js']
+      },
+      options: {
+        standalone: true
+      }
+    }
+  }
 
   // *********************************************
   // concat
-  config.concat = {
-    dist: {
-      src: [
-        'src/Tembo.js',
-        'src/core/*.js',
-        'src/interface/*.js',
-      ],
-      dest: 'dist/tembo.js'
-    }
-  }
+  // config.concat = {
+  //   dist: {
+  //     src: [
+  //       'src/Tembo.js',
+  //       'src/core/*.js',
+  //       'src/interface/*.js',
+  //     ],
+  //     dest: 'dist/tembo.js'
+  //   }
+  // }
 
 
   // *********************************************
@@ -73,10 +86,12 @@ module.exports = function(grunt) {
 
   tasks.forEach(grunt.loadNpmTasks);
 
+  grunt.registerTask('build', ['browserify', 'uglify']);
+
   grunt.registerTask('hint', ['jshint']);
 
   grunt.registerTask('test', ['jasmine']);
 
-  grunt.registerTask('default', ['jshint', 'concat', 'uglify','watch']);
+  grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'watch']);
 
 };
