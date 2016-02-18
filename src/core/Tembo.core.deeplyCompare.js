@@ -1,3 +1,5 @@
+module.exports = function(Tembo){
+  'use strict';
 Tembo._.upCall = function(lifecycleMethod,instance){
   if (instance.component){
     if (instance.component.componentWillUnmount){
@@ -10,47 +12,52 @@ Tembo._.upCall = function(lifecycleMethod,instance){
   }
 };
 
+  Tembo._.patchAttributes = function(component,newComponent){
 
-  Tembo._.patchAttributes = function(instance,newInstance){
+    var instance = component.instance;
+    var oldProps = component.props;
+    var newProps = newComponent.props;
 
-    Array.prototype.forEach.call(newInstance.attributes,function(attr){
-
-      if (attr.localName !== 'data-tamboid'){
-        instance.setAttribute(attr.localName,attr.value);
-      }
-
+    Object.keys(newProps).forEach(function(key){
+      if (key === 'data-tamboId') return;
+      if (key === 'children') return;
+      if (oldProps[key] === newProps[key]) return;
+      Tembo.$.setProp(instance,key,newProps[key]);
     });
   };
 
   Tembo._.patchChildren = function(instance,newInstance){
 
     var SilentDiff = {};
-    Array.prototype.forEach.call(instance.children,function(element){
-      if (!SilentDiff[element.getAttribute('data-tamboId')])
-        SilentDiff[element.getAttribute('data-tamboId')] = {};
+    var children = Tembo.$.getChildren(intstance);
+    children.forEach(function(element){
+      var id = Tembo.$.getId(element);
+      if (!SilentDiff[id]) SilentDiff[id] = {};
 
-      SilentDiff[element.getAttribute('data-tamboId')].a = element;
+      SilentDiff[id].a = element;
     });
 
-    Array.prototype.forEach.call(newInstance.children,function(element){
-      if (!SilentDiff[element.getAttribute('data-tamboId')])
-        SilentDiff[element.getAttribute('data-tamboId')] = {};
-
-      SilentDiff[element.getAttribute('data-tamboId')].b = element;
+    var newChildren = Tembo.$.getChildren(newInstance);
+    newChildren.forEach(function(element){
+      var id = Tembo.$.getId(element);
+      if (!SilentDiff[id]) SilentDiff[id] = {};
+      SilentDiff[id].b = element;
     });
 
-    for(var key in SilentDiff){
-        var patch = SilentDiff[key];
-        if (patch.a === undefined && patch.b !== undefined){
-          Tembo._.upCall('componentWillUnmount',patch.b);
-          instance.appendChild(patch.b);
-        }
-        if (patch.a !== undefined && patch.b === undefined){
-          Tembo._.upCall('componentWillUnmount',patch.a);
-          instance.removeChild(patch.a);
-        }
-    }
-
+    Object.keys(SilentDiff).forEach(function(key){
+      var patch = SilentDiff[key];
+      if (patch.a === undefined && patch.b !== undefined){
+        Tembo._.upCall('componentWillMount',patch.b);
+        Tembo.$.appendChild(instance,patch.b);
+      }else if (patch.a !== undefined && patch.b === undefined){
+        Tembo._.upCall('componentWillUnmount',patch.a);
+        Tembo.$.removeChild(instance,patch.a);
+      }else{
+        // if a !== b
+        // Tembo._.upCall('componentWillUpdate',patch.a,patch.b);
+        // Tembo.$.replace(instance,patch.a,patch.b);
+      }
+    });
 
       // newInstance.attributes,function(attr){
       // instance.setAttribute(attr.localName,attr.value);
@@ -58,22 +65,21 @@ Tembo._.upCall = function(lifecycleMethod,instance){
   };
 
   Tembo._.patchText = function(instance,newInstance){
-    if (!instance.hasChildNodes()){
-        instance.textContent = newInstance.textContent;
+    var children = Tembo.$.getChildren(newInstance);
+    if (!children.length || children.length === 1 && Tembo.$.isText(children[0])){
+      var oldChildren = Tembo.$.getChildren(newInstance);
+      if (oldChildren.length){
+        oldChildren.forEach(function(child){
+          Tembo._.upCall('componentWillUnmount',child);
+          Tembo.$.removeChild(instance,child);
+        });
+      }
+      Tembo.$.setText(instance,Tembo.$.getText(newInstance));
+      return true;
     }
   };
 
-
-
-
-
-
-
-
-
-//File : src/Tembo._.deeplyCompare.js
-(function(Tembo){
-  'use strict';
+  //File : src/Tembo._.deeplyCompare.js
 
   Tembo._.deeplyCompare = function(element,reRenderedElement){
 
@@ -83,12 +89,12 @@ Tembo._.upCall = function(lifecycleMethod,instance){
     newInstance.instance = newInstance.render();
     newInstance.instance.component = newInstance;
 
-    Tembo._.patchAttributes(instance.instance,newInstance.instance);
-    Tembo._.patchText(instance.instance,newInstance.instance);
-    Tembo._.patchChildren(instance.instance,newInstance.instance);
+    Tembo._.patchAttributes(instance,newInstance);
+    if (!Tembo._.patchText(instance.instance,newInstance.instance)){
+      Tembo._.patchChildren(instance.instance,newInstance.instance);
+    }
 
     return false;
 
   };
-
-})(this.Tembo);
+};

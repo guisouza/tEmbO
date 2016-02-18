@@ -1,3 +1,7 @@
+module.exports = function(Tembo){
+  'use strict';
+
+  var $ = Tembo.$;
 
   Tembo._.can('append',function(element,content){
     if (content)
@@ -13,12 +17,11 @@
 
   });
 
-
-
   Tembo._.can('appendChild',function(element,content){
     content.parent = element;
-    if (element.getAttribute('data-tamboId') === null){
-        element.setAttribute('data-tamboId','$0');
+    var elemID = $.getId(element);
+    if (!elemID){
+      $.setId(element,'$0');
     }
     if (element.childIndex === undefined){
       element.childIndex = 0;
@@ -29,19 +32,19 @@
     if (content){
 
       if (content.render){
-        component = content;
         content = Tembo.renderTree(content);
         content.parent = element;
-        content.setAttribute('data-tamboId',content.parent.getAttribute('data-tamboId')+'.$'+content.parent.childIndex);
-        element.appendChild(content);
+        $.setId(content,elemID+'.$'+content.parent.childIndex);
+        $.appendChild(element,content);
         return element;
       }
 
       if (content.tagName){
-        content.setAttribute('data-tamboId',content.parent.getAttribute('data-tamboId')+'.$'+content.parent.childIndex);
-        element.appendChild(content);
+        $.setId(content,elemID+'.$'+content.parent.childIndex);
+        $.appendChild(element,content);
         return element;
       }
+
       // if (content.instance){
       //   if (content.componentDidMount)
       //     content.componentDidMount();
@@ -50,18 +53,14 @@
       //   return element;
       // }
       if (typeof content === 'string'){
-
-        element.appendChild(document.createTextNode(content));
+        $.appendChild(element,$.createText(content));
         return element;
       }
     }
   });
 
-
-
-
   Tembo._.can('setInitialState',function(element){
-    if(element.isTemboComponent){
+    if (element.isTemboComponent){
       if (element.getInitialState){
         if (!element.state)
           element.state = {};
@@ -72,21 +71,13 @@
     return element;
   });
 
-
-
-
-
-// File : src/Tembo.createElement.js
-
-(function(Tembo){
-
-  'use strict';
+  // File : src/Tembo.createElement.js
   Tembo._.can('createElement',function(element,props,content){
 
     if (!props)
       props = {};
 
-    if(arguments.length > 3){
+    if (arguments.length > 3){
       content = [];
       var index = 2;
       while(index < arguments.length){
@@ -94,7 +85,6 @@
         index++;
       }
     }
-
 
     if (element.prototype)
     if (element.prototype.isTemboComponent){
@@ -104,6 +94,5 @@
     }
 
     return new Tembo.El(element,props,content);
-
   });
-})(this.Tembo);
+};

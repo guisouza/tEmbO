@@ -1,15 +1,29 @@
 //File : src/Tembo.js
 
-;(function(world){
-  'use strict';
+var TemboConstructor = function(renderer){
+  var tembo = {
+    _ : {},
+    $ : renderer || require('./renderers/DOM.js'),
+    components : {}
+  };
+  require('./core/Tembo.core.can.js')(tembo);
+  require('./core/Tembo.core.componentFactory.js')(tembo);
+  require('./core/Tembo.core.deeplyCompare.js')(tembo);
+  require('./core/tembo.El.js')(tembo);
 
-  world.Tembo = function(){
-    return {
-      _ : {
-      },
-      components : {
-      }
-    };
-  }();
+  require('./interface/tembo.createClass.js')(tembo);
+  require('./interface/tembo.createElement.js')(tembo);
+  require('./interface/tembo.render.js')(tembo);
 
-})(this);
+  return tembo;
+};
+
+var Tembo = TemboConstructor();
+
+Tembo.TemboConstructor = TemboConstructor;
+
+module.exports = Tembo;
+
+if (!module.parent && typeof window === 'object'){
+  window.Tembo = Tembo;
+}

@@ -1,4 +1,5 @@
-(function(Tembo){
+
+module.exports = function(Tembo){
   'use strict';
   Tembo._.can('renderTree',function(component){
     if (component.render){
@@ -8,17 +9,9 @@
     }
     return component;
   });
-})(this.Tembo);
 
-
-
-//File : src/Tembo.render.js
-
-(function(Tembo){
-  'use strict';
-  Tembo._.can('render',function(component,element){
+  Tembo._.can('render',function(component){
     component.instance = Tembo.renderTree(component);
-    Tembo.appendChild(element,component.instance);
-
+    return Tembo.$.render(component,arguments);
   });
-})(this.Tembo);
+};
