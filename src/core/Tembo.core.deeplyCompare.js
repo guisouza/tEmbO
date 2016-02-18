@@ -101,4 +101,38 @@ module.exports = function(Tembo){
     return false;
 
   };
+
+  Tembo._.compareChildren = function(element,newElement){
+    var oldChildren = element.props.children;
+    var newChildren = newElement.props.children;
+
+    if (oldChildren.length === newChildren.length === 0){
+      return false;
+    }
+    var dirty = false;
+    var l = Math.min(oldChildren.length,newChildren.length);
+    for(var i = 0; i < l; i++){
+      var oldChild = oldChildren[i];
+      var newChild = newChildren[i];
+      if (!Tembo._.deeplyCompare(oldChild,newChild)){
+        dirty = true;
+      }
+    }
+
+    var diff = oldChildren.length - newChildren.length;
+    if (diff > 0){
+      while(diff-- !== 0){
+        Tembo.removeChild(element,oldChildren[diff + l]);
+      }
+      dirty = true;
+    }else if (diff < 0){
+      diff *= -1;
+      while(diff-- !== 0){
+        Tembo.appendChild(element,newChildren[diff + l]);
+      }
+      dirty = true;
+    }
+
+    return dirty;
+  };
 };
