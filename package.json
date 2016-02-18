@@ -28,5 +28,8 @@
     "grunt-tape": "0.0.2",
     "tap": "^5.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "deep-equal": "latest",
+    "setimmediate": "latest"
+  }
 }
