@@ -1,6 +1,6 @@
 //File : src/Tembo._.componentFactory.js
 
-(function(Tembo){
+module.exports = function(Tembo){
   'use strict';
 
   Tembo._.componentFactory = function(structure){
@@ -42,5 +42,4 @@
     };
     return TemboComponent;
   };
-
-})(this.Tembo);
+};

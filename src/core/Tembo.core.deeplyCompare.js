@@ -1,3 +1,5 @@
+module.exports = function(Tembo){
+  'use strict';
 Tembo._.upCall = function(lifecycleMethod,instance){
   if (instance.component){
     if (instance.component.componentWillUnmount){
@@ -9,7 +11,6 @@ Tembo._.upCall = function(lifecycleMethod,instance){
     console.log('if your code reach this line, send-me a e-mail gui_souza@me.com . I would love to work with you in my new project');
   }
 };
-
 
   Tembo._.patchAttributes = function(instance,newInstance){
 
@@ -35,7 +36,6 @@ Tembo._.upCall = function(lifecycleMethod,instance){
     Array.prototype.forEach.call(newInstance.children,function(element){
       if (!SilentDiff[element.getAttribute('data-tamboId')])
         SilentDiff[element.getAttribute('data-tamboId')] = {};
-
       SilentDiff[element.getAttribute('data-tamboId')].b = element;
     });
 
@@ -51,7 +51,6 @@ Tembo._.upCall = function(lifecycleMethod,instance){
         }
     }
 
-
       // newInstance.attributes,function(attr){
       // instance.setAttribute(attr.localName,attr.value);
     // });
@@ -63,17 +62,7 @@ Tembo._.upCall = function(lifecycleMethod,instance){
     }
   };
 
-
-
-
-
-
-
-
-
-//File : src/Tembo._.deeplyCompare.js
-(function(Tembo){
-  'use strict';
+  //File : src/Tembo._.deeplyCompare.js
 
   Tembo._.deeplyCompare = function(element,reRenderedElement){
 
@@ -90,5 +79,4 @@ Tembo._.upCall = function(lifecycleMethod,instance){
     return false;
 
   };
-
-})(this.Tembo);
+};

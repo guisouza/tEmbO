@@ -1,6 +1,9 @@
+
+module.exports = function(Tembo){
+  'use strict';
 Tembo._.can('attachProps',function(element,props,content){
   var prop;
-  if(element.isTemboComponent && element.isTemboComponent !== undefined){
+  if (element.isTemboComponent && element.isTemboComponent !== undefined){
     if (!element.props){
       element.props = {};
     }
@@ -8,29 +11,25 @@ Tembo._.can('attachProps',function(element,props,content){
       for(prop in props){
         element.props[prop] = props[prop];
       }
-      element.props.children = content;
+    element.props.children = content;
   }else{
     element = document.createElement(element);
     element = Tembo.append(element,content);
     for(var attr in props){
 
-        if (attr.indexOf('on') === 0){
-          var event = attr.replace('on','').toLowerCase();
-          element.addEventListener(event,props[attr],false);
-        }else{
-          if (attr !== 'children')
-          element.setAttribute(attr,props[attr]);
-        }
+      if (attr.indexOf('on') === 0){
+        var event = attr.replace('on','').toLowerCase();
+        element.addEventListener(event,props[attr],false);
+      }else{
+        if (attr !== 'children')
+        element.setAttribute(attr,props[attr]);
+      }
     }
   }
-    return element;
+  return element;
 });
 
-
-//File : src/Tembo.El.js
-
-(function(Tembo){
-  'use strict';
+  //File : src/Tembo.El.js
 
   Tembo.El = function(type,props,content){
     this.type = type;
@@ -48,5 +47,4 @@ Tembo._.can('attachProps',function(element,props,content){
     return element;
 
   };
-
-})(this.Tembo);
+};
