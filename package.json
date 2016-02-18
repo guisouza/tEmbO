@@ -15,8 +15,10 @@
     "test": "./node_modules/.bin/grunt"
   },
   "devDependencies": {
+    "browserify": "^13.0.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
+    "grunt-cli": "^0.1.13",
     "grunt-contrib-concat": "^0.4.0",
     "grunt-contrib-jasmine": "^0.9.1",
     "grunt-contrib-jshint": "0.11.0",
