@@ -1,37 +1,66 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Component = require('./interface/Component');
+var Patch = require('./interface/Patch');
+var NativeRoot = require('./render/NativeRoot');
+
 //File : src/Tembo.js
 
-var TemboConstructor = function(renderer){
+var TemboConstructor = function(renderer,updater){
   var tembo = {
     _ : {},
-    $ : renderer || require('./renderers/DOM.js'),
     components : {}
   };
   require('./core/Tembo.core.can.js')(tembo);
 
-  // require('./core/Tembo.core.componentFactory.js')(tembo);
-  // require('./core/Tembo.core.deeplyCompare.js')(tembo);
-  // require('./core/tembo.El.js')(tembo);
+  tembo._.can('createClass',function(structure){
+    return Component.extend(structure,updater);
+  });
 
-  require('./interface/tembo.createClass.js')(tembo);
+  // File : src/Tembo.createElement.js
+  tembo._.can('createElement',function(element,props,content){
+    if (!props)
+      props = {};
 
-  // require('./interface/tembo.createElement.js')(tembo);
-  // require('./interface/tembo.render.js')(tembo);
+    if (arguments.length > 3){
+      content = [];
+      var index = 2;
+      while(index < arguments.length){
+        content.push(arguments[index]);
+        index++;
+      }
+    }
+
+    return new Patch(element,props,content);
+  });
+
+  tembo._.can('render',function(component,nativeParent){
+    var root = NativeRoot.makeTree(renderer,nativeParent,component);
+    return renderer.render(component,nativeParent);
+  });
 
   return tembo;
 };
 
-var Tembo = TemboConstructor();
-
-Tembo.TemboConstructor = TemboConstructor;
-
-module.exports = Tembo;
+module.exports = TemboConstructor;
 
 if (!module.parent && typeof window === 'object'){
-  window.Tembo = Tembo;
+  var SyncUpdate = require('./updaters/SyncUpdate');
+
+  window.Tembo = TemboConstructor(require('./renderers/DOM.js'),new SyncUpdate());
 }
 
-},{"./core/Tembo.core.can.js":5,"./interface/tembo.createClass.js":6,"./renderers/DOM.js":10}],2:[function(require,module,exports){
+},{"./core/Tembo.core.can.js":2,"./interface/Component":3,"./interface/Patch":4,"./render/NativeRoot":5,"./renderers/DOM.js":8,"./updaters/SyncUpdate":9}],2:[function(require,module,exports){
+//File : src/Tembo._.can.js
+
+module.exports = function(Tembo){
+  'use strict';
+  Tembo._.can = function(label,method){
+    if (!Tembo[label])
+      Tembo[label] = method;
+  };
+};
+
+},{}],3:[function(require,module,exports){
 var eventFunctions = [
   'componentWillMount',
   'componentDidMount',
@@ -142,7 +171,7 @@ TemboComponent.prototype.setState = function(state){
   }
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 
 module.exports = function Patch(type,props,content){
@@ -154,76 +183,7 @@ module.exports = function Patch(type,props,content){
   this.children = content;
 };
 
-},{}],4:[function(require,module,exports){
-var SyncUpdate;
-module.exports = SyncUpdate = function(){};
-
-var proto = SyncUpdate.prototype;
-
-proto.add = function(component){
-  if (component.destroyed) return;
-  if (component._isUpdating) return;
-  component._isUpdating = true;
-  component.renderNode.setPatch(component.render());
-};
-
-proto.remove = function(component){
-  if (component.destroyed) return;
-  if (!component._isUpdating) return;
-  component._isUpdating = false;
-};
-
 },{}],5:[function(require,module,exports){
-//File : src/Tembo._.can.js
-
-module.exports = function(Tembo){
-  'use strict';
-  Tembo._.can = function(label,method){
-    if (!Tembo[label])
-      Tembo[label] = method;
-  };
-};
-
-},{}],6:[function(require,module,exports){
-var Component = require('../core/Component');
-var Patch = require('../core/Patch');
-var Updater = require('../core/SyncUpdate');
-var NativeRoot = require('../render/NativeRoot');
-
-// File : src/Tembo.createClass.js
-
-module.exports = function(Tembo){
-  'use strict';
-  var updater = new Updater();
-  Tembo._.can('createClass',function(structure){
-    return Component.extend(structure,updater);
-  });
-
-  // File : src/Tembo.createElement.js
-  Tembo._.can('createElement',function(element,props,content){
-    if (!props)
-      props = {};
-
-    if (arguments.length > 3){
-      content = [];
-      var index = 2;
-      while(index < arguments.length){
-        content.push(arguments[index]);
-        index++;
-      }
-    }
-
-    return new Patch(element,props,content);
-  });
-
-  Tembo._.can('render',function(component,nativeParent){
-    var root = NativeRoot.makeTree(Tembo.$,nativeParent,component);
-    return Tembo.$.render(component,nativeParent);
-  });
-
-};
-
-},{"../core/Component":2,"../core/Patch":3,"../core/SyncUpdate":4,"../render/NativeRoot":7}],7:[function(require,module,exports){
 
 var UTIL = require('./util');
 var ShadowNode = require('./ShadowNode');
@@ -361,7 +321,7 @@ Object.defineProperty(proto,'index',{
   }
 });
 
-},{"./ShadowNode":8,"./util":9}],8:[function(require,module,exports){
+},{"./ShadowNode":6,"./util":7}],6:[function(require,module,exports){
 var UTIL = require('./util');
 
 var ShadowNode;
@@ -429,7 +389,7 @@ proto.render = function(){
   }
 };
 
-},{"./util":9}],9:[function(require,module,exports){
+},{"./util":7}],7:[function(require,module,exports){
 module.exports.isNative = function isNative(patch){
   var type = patch.type;
   if (!type) return true;
@@ -482,7 +442,7 @@ function deepCompare(a,b){
   });
 }
 
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 var DOM = document;
 
@@ -543,6 +503,25 @@ module.exports.createElement = function(tagName){
 };
 module.exports.createText = function(text){
   return DOM.createTextNode(text);
+};
+
+},{}],9:[function(require,module,exports){
+var SyncUpdate;
+module.exports = SyncUpdate = function(){};
+
+var proto = SyncUpdate.prototype;
+
+proto.add = function(component){
+  if (component.destroyed) return;
+  if (component._isUpdating) return;
+  component._isUpdating = true;
+  component.renderNode.setPatch(component.render());
+};
+
+proto.remove = function(component){
+  if (component.destroyed) return;
+  if (!component._isUpdating) return;
+  component._isUpdating = false;
 };
 
 },{}]},{},[1]);
