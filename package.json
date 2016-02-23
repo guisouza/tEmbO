@@ -29,7 +29,6 @@
     "tap": "^5.7.0"
   },
   "dependencies": {
-    "deep-equal": "latest",
     "setimmediate": "latest"
   }
 }
