@@ -4,6 +4,7 @@ module.exports = function(Tembo){
   var $ = Tembo.$;
 
   Tembo._.can('append',function(element,content){
+    console.log('append');
     if (content)
     if (Array.isArray(content)){
       content.forEach(function(child){
@@ -18,6 +19,7 @@ module.exports = function(Tembo){
   });
 
   Tembo._.can('appendChild',function(element,content){
+    console.log('appendChild');
     content.parent = element;
     var elemID = $.getId(element);
     if (!elemID){
@@ -60,6 +62,7 @@ module.exports = function(Tembo){
   });
 
   Tembo._.can('setInitialState',function(element){
+    console.log('setInitialState');
     if (element.isTemboComponent){
       if (element.getInitialState){
         if (!element.state)
@@ -73,7 +76,7 @@ module.exports = function(Tembo){
 
   // File : src/Tembo.createElement.js
   Tembo._.can('createElement',function(element,props,content){
-
+    console.log('createEl');
     if (!props)
       props = {};
 
@@ -84,13 +87,6 @@ module.exports = function(Tembo){
         content.push(arguments[index]);
         index++;
       }
-    }
-
-    if (element.prototype)
-    if (element.prototype.isTemboComponent){
-      var Element = element;
-      element = new Element();
-      element.isTemboComponent = true;
     }
 
     return new Tembo.El(element,props,content);

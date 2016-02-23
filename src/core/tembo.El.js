@@ -27,7 +27,7 @@ module.exports = function(Tembo){
     if (props)
       this.props = props;
 
-    this.props.children = content;
+    this.children = content;
   };
 
   Tembo.El.prototype.render = function(){

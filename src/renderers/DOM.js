@@ -9,9 +9,7 @@ if (typeof document === 'object'){
   module.exports.setDOM(document);
 }
 
-module.exports.render = function(component,args){
-  var parent = args[1];
-  parent.appendChild(component.instance);
+module.exports.render = function(component,parent){
   return component.instance;
 };
 
@@ -24,52 +22,40 @@ module.exports.setId = function(element,id){
 };
 
 module.exports.setProp = function(element,key,value){
-  return element.setAttribute(key,value);
-};
-
-module.exports.getChildren = function(parent){
-  return Array.prototype.slice.call(parent.children);
+  if (key.indexOf('on') === 0){
+    key = key.replace('on','').toLowerCase();
+    element.addEventListener(key,value,false);
+  }else{
+    if (key !== 'children')
+    element.setAttribute(key,value);
+  }
 };
 
 module.exports.appendChild = function(parent,child){
   return parent.appendChild(child);
 };
 
+module.exports.insertChild = function(parent,child,index){
+  return parent.appendChild(child,parent.childNodes[index]);
+};
+
 module.exports.removeChild = function(parent,child){
   return parent.removeChild(child);
 };
 
-module.exports.replaceChild = function(parent,childA,childB){
-  return parent.replaceChild(childA,childB);
+module.exports.replaceChild = function(parent,oldChild,newChild){
+  return parent.replaceChild(newChild,oldChild);
 };
 
-module.exports.createText = function(text){
-  return DOM.createTextNode(text);
+module.exports.isElement = function(textNode){
+  return textNode.nodeType === 1;
 };
-
-module.exports.getText = function(node){
-  return node.textContent;
-};
-
-module.exports.setText = function(node,text){
-  return node.textContent = text;
-};
-
 module.exports.isText = function(textNode){
   return textNode.nodeType === 3;
 };
-
-module.exports.createElement = function(tagName,props){
-  var element = DOM.createElement(tagName);
-  for(var attr in props){
-
-    if (attr.indexOf('on') === 0){
-      var event = attr.replace('on','').toLowerCase();
-      element.addEventListener(event,props[attr],false);
-    }else{
-      if (attr !== 'children')
-      element.setAttribute(attr,props[attr]);
-    }
-  }
-  return element;
+module.exports.createElement = function(tagName){
+  return DOM.createElement(tagName);
+};
+module.exports.createText = function(text){
+  return DOM.createTextNode(text);
 };

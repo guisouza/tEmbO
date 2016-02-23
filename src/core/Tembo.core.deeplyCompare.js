@@ -31,7 +31,7 @@ module.exports = function(Tembo){
   Tembo._.patchChildren = function(instance,newInstance){
 
     var SilentDiff = {};
-    var children = Tembo.$.getChildren(intstance);
+    var children = Tembo.$.getChildren(instance);
     children.forEach(function(element){
       var id = Tembo.$.getId(element);
       if (!SilentDiff[id]) SilentDiff[id] = {};
@@ -88,7 +88,7 @@ module.exports = function(Tembo){
     var instance = element;
     var newInstance = reRenderedElement;
 
-    var dirty = Tembo._.compareChildren(element, reRenderedElement);
+    var dirty = Tembo._.compareChildren(element,reRenderedElement);
 
     newInstance.instance = newInstance.render();
     newInstance.instance.component = newInstance;

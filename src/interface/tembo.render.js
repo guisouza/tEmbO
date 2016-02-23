@@ -1,4 +1,3 @@
-
 module.exports = function(Tembo){
   'use strict';
   Tembo._.can('renderTree',function(component){
@@ -10,8 +9,8 @@ module.exports = function(Tembo){
     return component;
   });
 
-  Tembo._.can('render',function(component){
-    component.instance = Tembo.renderTree(component);
-    return Tembo.$.render(component,arguments);
+  Tembo._.can('render',function(component,nativeParent){
+    var root = NativeRoot.makeTree(Tembo.$,nativeParent,component);
+    return Tembo.$.render(component,nativeParent);
   });
 };
