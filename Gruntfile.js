@@ -5,6 +5,8 @@ module.exports = function(grunt) {
     'grunt-contrib-jshint',
     'grunt-contrib-concat',
     'grunt-browserify',
+    'grunt-tape',
+    'grunt-node-tap',
     'grunt-contrib-jasmine',
     'grunt-contrib-watch',
     'grunt-contrib-uglify',
@@ -19,6 +21,31 @@ module.exports = function(grunt) {
   config.jshint.options = {
     jshintrc : true
   }
+
+  // *********************************************
+  // tape
+  config.tape = {
+    options: {
+      pretty: false,
+      output: 'console'
+    },
+    files: ['tests/**/index.js']
+  };
+
+  // config.node_tap = {
+  //   all: {
+  //       options: {
+  //           outputType: 'tap', // tap, failures, stats
+  //           outputTo: 'console' // or file
+  //           // outputFilePath: '/tmp/out.log' // path for output file,
+  //           // only makes sense with outputTo 'file'
+  //       },
+  //       files: {
+  //           'tests': ['./tests/**/index.js']
+  //       }
+  //   }
+  // }
+
 
   // *********************************************
   // browserify
@@ -90,7 +117,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('hint', ['jshint']);
 
-  grunt.registerTask('test', ['jasmine']);
+  grunt.registerTask('test', ['tape','jasmine']);
 
   grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'watch']);
 
