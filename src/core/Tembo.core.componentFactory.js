@@ -3,6 +3,12 @@
 module.exports = function(Tembo){
   'use strict';
 
+  Tembo._.can('getNative',function(component){
+    var instance = component.instance;
+    while(instance.instance) instance = instance.instance;
+    return instance;
+  });
+
   Tembo._.componentFactory = function(structure){
     var TemboComponent = function(){};
     for(var key in structure){
@@ -10,15 +16,20 @@ module.exports = function(Tembo){
       TemboComponent.prototype[key] = method;
     }
 
-
     TemboComponent.prototype.__render__ = TemboComponent.prototype.render;
     TemboComponent.prototype.render = function(){
       var renderResult = TemboComponent.prototype.__render__.bind(this)();
+
       // if (!this.oldInstance){
 
       // }
       // this.instance = renderResult;
-      renderResult.component = this;
+      if (typeof renderResult === 'string'){
+        renderResult = Tembo.$.createText(renderResult);
+      }
+
+      if (typeof renderResult === 'object' && !renderResult)
+        renderResult.component = this;
 
       return renderResult;
     };

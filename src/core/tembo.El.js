@@ -1,23 +1,23 @@
 
 module.exports = function(Tembo){
   'use strict';
-Tembo._.can('attachProps',function(element,props,content){
-  var prop;
-  if (element.isTemboComponent && element.isTemboComponent !== undefined){
-    if (!element.props){
-      element.props = {};
-    }
-    if (props !== undefined && props !== null)
-      for(prop in props){
-        element.props[prop] = props[prop];
+  Tembo._.can('attachProps',function(element,props,content){
+    var prop;
+    if (element.isTemboComponent && element.isTemboComponent !== undefined){
+      if (!element.props){
+        element.props = {};
       }
-    element.props.children = content;
-  }else{
-    element = Tembo.$.createElement(element,props);
-    element = Tembo.append(element,content);
-  }
-  return element;
-});
+      if (props !== undefined && props !== null)
+        for(prop in props){
+          element.props[prop] = props[prop];
+        }
+      element.props.children = content;
+    }else{
+      element = Tembo.$.createElement(element,props);
+      element = Tembo.append(element,content);
+    }
+    return element;
+  });
 
   //File : src/Tembo.El.js
 

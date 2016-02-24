@@ -1,16 +1,16 @@
 module.exports = function(Tembo){
   'use strict';
-Tembo._.upCall = function(lifecycleMethod,instance){
-  if (instance.component){
-    if (instance.component.componentWillUnmount){
-      instance.component[lifecycleMethod]();
+  Tembo._.upCall = function(lifecycleMethod,instance){
+    if (instance.component){
+      if (instance.component.componentWillUnmount){
+        instance.component[lifecycleMethod]();
+      }else{
+        Tembo._.upCall(lifecycleMethod,instance.component);
+      }
     }else{
-      Tembo._.upCall(lifecycleMethod,instance.component);
+      console.log('if your code reach this line, send-me a e-mail gui_souza@me.com . I would love to work with you in my new project');
     }
-  }else{
-    console.log('if your code reach this line, send-me a e-mail gui_souza@me.com . I would love to work with you in my new project');
-  }
-};
+  };
 
   Tembo._.patchAttributes = function(component,newComponent){
 
@@ -52,15 +52,15 @@ Tembo._.upCall = function(lifecycleMethod,instance){
       }else if (patch.a !== undefined && patch.b === undefined){
         Tembo._.upCall('componentWillUnmount',patch.a);
         Tembo.$.removeChild(instance,patch.a);
-      }else{
-        // if a !== b
-        // Tembo._.upCall('componentWillUpdate',patch.a,patch.b);
-        // Tembo.$.replace(instance,patch.a,patch.b);
-      }
+      } // else{
+      // if a !== b
+      // Tembo._.upCall('componentWillUpdate',patch.a,patch.b);
+      // Tembo.$.replace(instance,patch.a,patch.b);
+      // }
     });
 
-      // newInstance.attributes,function(attr){
-      // instance.setAttribute(attr.localName,attr.value);
+    // newInstance.attributes,function(attr){
+    // instance.setAttribute(attr.localName,attr.value);
     // });
   };
 

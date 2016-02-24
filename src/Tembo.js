@@ -1,29 +1,24 @@
 //File : src/Tembo.js
 
 var TemboConstructor = function(renderer){
-  var tembo = {
-    _ : {},
-    $ : renderer || require('./renderers/DOM.js'),
-    components : {}
-  };
-  require('./core/Tembo.core.can.js')(tembo);
-  require('./core/Tembo.core.componentFactory.js')(tembo);
-  require('./core/Tembo.core.deeplyCompare.js')(tembo);
-  require('./core/tembo.El.js')(tembo);
+  if (!(this instanceof TemboConstructor)) return new TemboConstructor(renderer);
+  this._ = {};
+  this.$ = renderer;
+  this.components = {};
 
-  require('./interface/tembo.createClass.js')(tembo);
-  require('./interface/tembo.createElement.js')(tembo);
-  require('./interface/tembo.render.js')(tembo);
+  require('./core/Tembo.core.can.js')(this);
+  require('./core/Tembo.core.componentFactory.js')(this);
+  require('./core/Tembo.core.deeplyCompare.js')(this);
+  require('./core/tembo.El.js')(this);
 
-  return tembo;
+  require('./interface/tembo.createClass.js')(this);
+  require('./interface/tembo.createElement.js')(this);
+  require('./interface/tembo.render.js')(this);
+
 };
 
-var Tembo = TemboConstructor();
-
-Tembo.TemboConstructor = TemboConstructor;
-
-module.exports = Tembo;
+module.exports = TemboConstructor;
 
 if (!module.parent && typeof window === 'object'){
-  window.Tembo = Tembo;
+  window.Tembo = new TemboConstructor(require('./renderers/DOM.js'));
 }

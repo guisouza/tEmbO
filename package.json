@@ -23,7 +23,10 @@
     "grunt-contrib-jasmine": "^0.9.1",
     "grunt-contrib-jshint": "0.11.0",
     "grunt-contrib-uglify": "^0.4.0",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-jscs": "^2.7.0",
+    "grunt-tape": "0.0.2",
+    "tap": "^5.7.0"
   },
   "dependencies": {}
 }

@@ -1,37 +1,60 @@
-module.exports = function(grunt) {
+module.exports = function(grunt){
   'use strict';
 
   var tasks = [
     'grunt-contrib-jshint',
     'grunt-contrib-concat',
     'grunt-browserify',
+    'grunt-tape',
     'grunt-contrib-jasmine',
     'grunt-contrib-watch',
     'grunt-contrib-uglify',
+    'grunt-jscs'
   ];
 
- var config = {};
+  var config = {};
 
   // *********************************************
   // jshint
   config.jshint = {};
-  config.jshint.all = ['src/core/*.js','src/helpers/*.js','src/interface/*.js','src/defaultProperties/*.js'];
+  config.jshint.src = ['src/core/*.js','src/helpers/*.js','src/interface/*.js','src/defaultProperties/*.js'];
+  config.jshint.test = ['tests/**/*.js','Gruntfile.js'];
   config.jshint.options = {
     jshintrc : true
-  }
+  };
+
+  // *********************************************
+  // tape
+  config.tape = {
+    options : {
+      pretty : false,
+      output : 'console'
+    },
+    files : ['tests/**/index.js']
+  };
 
   // *********************************************
   // browserify
   config.browserify = {
-    dist: {
-      files: {
-        'dist/tembo.js': ['src/Tembo.js']
+    dist : {
+      files : {
+        'dist/tembo.js' : ['src/Tembo.js']
       },
-      options: {
-        standalone: true
+      options : {
+        standalone : true
       }
     }
-  }
+  };
+
+  // *********************************************
+  // jscs
+  config.jscs = {
+    src  : 'src/**/*.js',
+    test : ['tests/**/*.js','Gruntfile.js'],
+    options : {
+      config : '.jscsrc'
+    }
+  };
 
   // *********************************************
   // concat
@@ -46,52 +69,50 @@ module.exports = function(grunt) {
   //   }
   // }
 
-
   // *********************************************
   // uglify
   config.uglify = {};
   config.uglify.all = {
-    files: {
-      'dist/tembo.min.js': [ 'dist/tembo.js' ]
+    files : {
+      'dist/tembo.min.js' : ['dist/tembo.js']
     },
-    options: {
-      preserveComments: false,
-      sourceMap: 'dist/tembo.min.map',
-      sourceMappingURL: 'tembo.min.map',
-      report: 'min',
-      beautify: {
-        ascii_only: true
+    options : {
+      preserveComments : false,
+      sourceMap : 'dist/tembo.min.map',
+      sourceMappingURL : 'tembo.min.map',
+      report : 'min',
+      beautify : {
+        ascii_only : true
       },
-      compress: {
-        hoist_funs: false,
-        loops: false,
-        unused: false
+      compress : {
+        hoist_funs : false,
+        loops : false,
+        unused : false
       }
     }
-  }
-
+  };
 
   // *********************************************
   // watch
   config.watch = {};
   config.watch.scripts = {
-    files: ['src/**/*.js','src/*.js'],
-    tasks: ['default'],
-    options: {
-      spawn: false
+    files : ['src/**/*.js','src/*.js'],
+    tasks : ['default'],
+    options : {
+      spawn : false
     }
-  }
+  };
 
   grunt.initConfig(config);
 
   tasks.forEach(grunt.loadNpmTasks);
 
-  grunt.registerTask('build', ['browserify', 'uglify']);
+  grunt.registerTask('build',['browserify','uglify']);
 
-  grunt.registerTask('hint', ['jshint']);
+  grunt.registerTask('hint',['jshint','jscs']);
 
-  grunt.registerTask('test', ['jasmine']);
+  grunt.registerTask('test',['tape','jasmine']);
 
-  grunt.registerTask('default', ['jshint', 'browserify', 'uglify', 'watch']);
+  grunt.registerTask('default',['hint','browserify','uglify','watch']);
 
 };
