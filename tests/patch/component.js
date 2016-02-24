@@ -22,31 +22,31 @@
 */
 
 module.exports = function(at){
-  at.skip('pass Falsy', function(t){
-    createComponent(t,'falsy', require('./falsy.js'));
+  at.skip('pass Falsy',function(t){
+    createComponent(t,'falsy',require('./falsy.js'));
   });
-  at.skip('pass String', function(t){
-    createComponent(t,'string', require('./string.js'));
+  at.skip('pass String',function(t){
+    createComponent(t,'string',require('./string.js'));
   });
-  at.skip('pass Native', function(t){
-    createComponent(t,'native', require('./native-element.js'));
+  at.skip('pass Native',function(t){
+    createComponent(t,'native',require('./native-element.js'));
   });
-  at.skip('pass Component', function(aat){
-    createComponent(aat,'component', function(aaat){
-      aaat.skip('pass Falsy', function(t){
-        createComponent(t,'falsy', require('./falsy.js'));
+  at.skip('pass Component',function(aat){
+    createComponent(aat,'component',function(aaat){
+      aaat.skip('pass Falsy',function(t){
+        createComponent(t,'falsy',require('./falsy.js'));
       });
-      aaat.skip('pass String', function(t){
-        createComponent(t,'string', require('./string.js'));
+      aaat.skip('pass String',function(t){
+        createComponent(t,'string',require('./string.js'));
       });
-      aaat.skip('pass Native', function(t){
-        createComponent(t,'native', require('./native-element.js'));
+      aaat.skip('pass Native',function(t){
+        createComponent(t,'native',require('./native-element.js'));
       });
       aaat.skip('childrenAnomalies',childrenAnomalies);
     });
   });
 
-  at.skip('Children Anomolies', childrenAnomalies)
+  at.skip('Children Anomolies',childrenAnomalies);
 };
 
-function childrenAnomalies(){};
+function childrenAnomalies(){}

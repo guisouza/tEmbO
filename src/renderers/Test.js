@@ -67,7 +67,7 @@ proto.insertChild = function(parent,child,i){
 proto.removeChild = function(parent,child){
   var i = parent.children.indexOf(child);
   if (i === -1) throw 'remove: old not found';
-  parent.splice(i, 1);
+  parent.splice(i,1);
   child.parent = void 0;
 };
 
@@ -84,7 +84,7 @@ proto.replaceChild = function(parent,oldNode,newNode){
 
 proto.createText = function(text){
   return new TextNode(text);
-}
+};
 
 proto.getText = function(node){
   return node.text;

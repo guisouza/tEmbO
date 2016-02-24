@@ -19,4 +19,4 @@ module.exports = function(at){
   childTestIterator(at,nativeTester);
 };
 
-function nativeTester(){};
+function nativeTester(){}

@@ -16,7 +16,7 @@ tap.test('Patch',function(at){
     - second gone - have 1 and 3
     - third gone - have 1 and 2
   */
-  at.test('native element',require('./native_element.js'));
+  at.test('native element',require('./native-element.js'));
   /*
   - removing values
     - when there was nothing, nothing changes

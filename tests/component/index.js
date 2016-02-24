@@ -1,14 +1,14 @@
 var tap = require('tap');
 
-tap.test('Component', function (at) {
-  at.test('Lifecycle', function(aat){
+tap.test('Component',function(at){
+  at.test('Lifecycle',function(aat){
     /*
     - mounting
       - when is created through `tEmbO.render(component, parentEl)` - will mount, did mount
       - When a shadow creates this as its figure - will mount, did mount
       - When a parent adds a child - will mount, did mount
     */
-    aat.test('mount', require('./mount.js'));
+    aat.test('mount',require('./mount.js'));
     /*
     - updating
       - when shadow provides it props - recieves props, should update, will update, did update
@@ -21,7 +21,7 @@ tap.test('Component', function (at) {
         - will update children if render provides different props
       - can cancel update - should update -> return false
     */
-    aat.test('update', require('./update.js'));
+    aat.test('update',require('./update.js'));
 
     /*
     - unmounting
@@ -29,6 +29,6 @@ tap.test('Component', function (at) {
       - when shadow returns null instead of this component - will unmount
       - when parent removes children - will unmount
     */
-    aat.test('unmount', require('./unmount.js'));
+    aat.test('unmount',require('./unmount.js'));
   });
 });

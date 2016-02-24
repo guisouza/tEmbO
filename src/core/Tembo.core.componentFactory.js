@@ -16,15 +16,15 @@ module.exports = function(Tembo){
       TemboComponent.prototype[key] = method;
     }
 
-
     TemboComponent.prototype.__render__ = TemboComponent.prototype.render;
     TemboComponent.prototype.render = function(){
       var renderResult = TemboComponent.prototype.__render__.bind(this)();
+
       // if (!this.oldInstance){
 
       // }
       // this.instance = renderResult;
-      if(typeof renderResult === 'string'){
+      if (typeof renderResult === 'string'){
         renderResult = Tembo.$.createText(renderResult);
       }
 
