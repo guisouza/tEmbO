@@ -9,7 +9,6 @@ module.exports = BatchUpdate = function(){
 var proto = BatchUpdate.prototype;
 
 proto.rerender = function(){
-  var cleared = false;
   var nextNodes = Array.from(this.toRerender);
   this.toRerender = new Set();
   var _this = this;

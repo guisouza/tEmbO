@@ -6,5 +6,5 @@ module.exports = function Patch(type,props,content){
   if (props)
     this.props = props;
 
-  this.children = content;
+  this.children = content instanceof Array ? content : content ? [content] : [];
 };

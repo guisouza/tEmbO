@@ -12,9 +12,10 @@ module.exports = TemboComponent = function(renderNode){
   if (!renderNode) throw new Error('renderNode required');
   this.renderNode = renderNode;
   this.props = {};
-  this.state = this.getInitialState ? this.getInitialState() : {};
-  this._newState = {};
+  this.state = void 0;
+  this._newState = this.getInitialState ? this.getInitialState() : {};
   this._stateChanged = false;
+  this._isUpdating = true;
 };
 TemboComponent.extend = function(mixin,updater){
   var ExtendedComponent = function(renderNode){
@@ -27,14 +28,15 @@ TemboComponent.extend = function(mixin,updater){
 
   ExtendedComponent.prototype = Object.create(TemboComponent.prototype);
   ExtendedComponent.prototype.constructor = ExtendedComponent;
-  for(var key in mixin){
+  Object.keys(mixin).forEach(function(key){
     var method = mixin[key];
     if (eventFunctions.indexOf(key) > -1){
       ExtendedComponent.prototype['__' + key + '__'] = method;
     }else{
       ExtendedComponent.prototype[key] = method;
     }
-  }
+  });
+
   if (mixin.displayName)
     ExtendedComponent.displayName = mixin.displayName;
 
@@ -43,29 +45,35 @@ TemboComponent.extend = function(mixin,updater){
 };
 
 TemboComponent.prototype.attachProps = function(props,content){
-  var didUpdate = false;
-  var oldProps = this.props;
+  // var didUpdate = false;
+  // var oldProps = this.props;
   var newProps = {};
   if (typeof props === 'object')
-  for(var prop in props){
+  Object.keys(props).forEach(function(prop){
     newProps[prop] = props[prop];
-  }
+  });
   if (!(content instanceof Array)){
     content = [content];
   }
   newProps.children = content;
 
   this.props = newProps;
-
-  if (oldProps) Tembo.call('componentDidUpdate',this,oldProps);
-  else Tembo.call('componentDidMount',this);
 };
 
 TemboComponent.prototype.isTemboComponent =
-TemboComponent.isTemboComponent = true;
+TemboComponent.isTemboComponent =
+true;
+
+eventFunctions.forEach(function(eventName){
+  TemboComponent.prototype[eventName] = function(){
+    if (typeof this['__' + eventName + '__'] === 'function'){
+      return this['__' + eventName + '__']();
+    }
+  };
+});
 
 TemboComponent.prototype.render = function(){
-  if (this._isUpdating){
+  if (!this.state || this._isUpdating){
     // component setState and all that
     this._isUpdating = false;
     this.state = this._newState;
@@ -77,21 +85,13 @@ TemboComponent.prototype.render = function(){
 
   // }
   // this.instance = renderResult;
-  renderResult.component = this;
 
   return renderResult;
 };
 
-TemboComponent.prototype.componentWillUnmount = function(){
-  if (this.__componentWillUnmount__){
-    return this.__componentWillUnmount__();
-  }
-};
-
-TemboComponent.prototype.isTemboComponent = true;
 TemboComponent.prototype.setState = function(state){
   var newState = this._newState;
-  var curState = this.state;
+  var curState = this.state || {};
   Object.keys(state).forEach(function(key){
     newState[key] = state[key];
     if (newState[key] === curState[key]){

@@ -1,22 +1,26 @@
-module.exports.isNative = function isNative(patch){
+
+var isNative,differentTypes,differentPatch,clone,deepCompare;
+
+module.exports.isNative = isNative = function(patch){
+  if (!patch) return true;
+  if (typeof patch === 'string') return true;
   var type = patch.type;
-  if (!type) return true;
-  if (typeof type === 'string') return true;
   return !type.isTemboComponent;
 };
 
-module.exports.differentTypes = function differentTypes(a,b){
+module.exports.differentTypes = differentTypes = function(a,b){
   //Check if one is null and the otherone isn't
-  debugger;
-  if ((!a && b) || (!b && a)) return true;
+  var booA = !a,booB = !b;
+  if (booA || booB) return booA !== booB;
   if (typeof a !== typeof b) return true;
-  switch(typeof a){
-    case 'string': return false;
-    case 'object': return a.type !== b.type;
-  }
+  if (typeof a === 'string') return false;
+  if (typeof a.type === 'string') return a.type !== b.type;
+  return a.type !== b.type;
 };
 
-module.exports.differentPatch = function differentPatch(a,b){
+module.exports.differentPatch = differentPatch = function(a,b){
+  var booA = !a,booB = !b;
+  if (booA || booB) return booA !== booB;
   if (typeof a === 'string') return a !== b;
   if (!deepCompare(a.props,b.props)) return true;
   if (!a.children && !b.children) return false;
@@ -30,14 +34,14 @@ module.exports.differentPatch = function differentPatch(a,b){
   });
 };
 
-module.exports.clone = function(obj){
+module.exports.clone = clone = function(obj){
   return Object.keys(obj).reduce(function(ret,key){
     ret[key] = obj[key];
     return ret;
   },{});
 };
 
-function deepCompare(a,b){
+deepCompare = function(a,b){
   var type = typeof a;
   if (type !== typeof b) return false;
   if (type !== 'object') return a === b;
@@ -48,4 +52,4 @@ function deepCompare(a,b){
     if (!(key in b)) return true;
     return !deepCompare(a[key],b[key]);
   });
-}
+};

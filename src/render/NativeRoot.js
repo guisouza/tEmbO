@@ -7,29 +7,46 @@ module.exports = NativeRoot = function(patch,options){
   this.renderer = options.renderer;
   this.parent = options.parent;
   this.children = [];
-
-  if (this.renderer){
-    this.elem = patch;
-  }else if (UTIL.isNative(patch)){
-    this.setPatch(patch);
-  }else if (this.parent){
-    this.shadowHead = new ShadowNode(patch,{ native : this });
-  }else{
-    throw new Error('what hapenned');
-  }
+  this.setContent(patch);
 };
 
 NativeRoot.makeTree = function(Renderer,container,patch){
   var root = new NativeRoot(container,{ renderer : Renderer });
   var rootComponent = new NativeRoot(patch,{ parent : root });
-  return root;
+  return [root,rootComponent];
 };
 
 var proto = NativeRoot.prototype;
 
-proto.setPatch = function(newPatch){
+proto.setContent = function(patch){
   var oldPatch = this.oldPatch;
-  this.oldPatch = newPatch;
+  this.oldPatch = patch;
+  if (this.renderer) return (this.elem = patch);
+
+  if (UTIL.differentTypes(oldPatch,patch)){
+    if (this.shadowHead) this.shadowHead.remove();
+    this.shadowHead = null;
+    if (UTIL.isNative(patch)) return this.setPatch(patch);
+    if (this.parent){
+      this.shadowHead = new ShadowNode(patch,{ native : this });
+      return;
+    }
+
+    throw new Error('what hapenned');
+  }
+
+  if (!UTIL.differentPatch(oldPatch,patch)) return;
+
+  if (this.shadowHead){
+    this.shadowHead.setPatch(patch);
+  }else{
+    this.setProps(patch);
+  }
+};
+
+proto.setPatch = function(newPatch){
+  var oldPatch = this.oldNative;
+  this.oldNative = newPatch;
   if (!oldPatch && !newPatch) return;
   if (UTIL.differentTypes(oldPatch,newPatch)){
     this.differentTypeSet(oldPatch,newPatch);
@@ -43,6 +60,11 @@ proto.setPatch = function(newPatch){
 proto.setProps = function(newPatch){
   var $ = this.Render;
   var nativeContainer = this.elem;
+
+  if (!newPatch){
+    return;
+  }
+
   if (typeof newPatch === 'string'){
     return $.setText(nativeContainer,newPatch);
   }
@@ -61,7 +83,7 @@ proto.setProps = function(newPatch){
   var max = Math.max(childLength,patchLength);
   for(var i=0; i < max; i++){
     if (i < min)
-      children[i].setPatch(childrenPatches[i]);
+      children[i].setContent(childrenPatches[i]);
     else if (childLength < patchLength)
       children.push(new NativeRoot(childrenPatches[i],{ parent : this }));
     else
@@ -77,9 +99,8 @@ proto.remove = function(){
 };
 
 proto.renderPatch = function(patch){
-  var element;
   if (!patch) return null;
-  if (typeof patch === 'string') return this.Render.createText(elem);
+  if (typeof patch === 'string') return this.Render.createText(patch);
   if (typeof patch !== 'object'){
     throw new Error('Cannot make patch of ' + patch);
   }
@@ -128,8 +149,8 @@ Object.defineProperty(proto,'index',{
     // Also possible to cache this
     var count = 0;
     for(var i=0,l=children.length; i < l; i++){
-      if (children[i] = this) break;
-      if (children[i].nativeFigure) count++;
+      if (children[i] == this) break;
+      if (children[i].elem) count++;
     }
     return count === l ? -1 : count;
   }

@@ -5,6 +5,10 @@ var NativeRoot = require('./render/NativeRoot');
 //File : src/Tembo.js
 
 var TemboConstructor = function(renderer,updater){
+  if (!updater){
+    var SyncUpdate = require('./updaters/SyncUpdate');
+    updater = new SyncUpdate();
+  }
   var tembo = {
     _ : {},
     components : {}
@@ -34,7 +38,11 @@ var TemboConstructor = function(renderer,updater){
 
   tembo._.can('render',function(component,nativeParent){
     var root = NativeRoot.makeTree(renderer,nativeParent,component);
-    return renderer.render(component,nativeParent);
+    return renderer.render(root);
+  });
+
+  tembo._.can('getNative',function(component){
+    return component.renderNode.native.elem;
   });
 
   return tembo;

@@ -6,9 +6,14 @@ module.exports = ShadowNode = function(patch,options){
   this.shadow = options.shadow;
   this.native = options.native;
   this.elem = new patch.type(this);
-  this.setPatch(patch);
 
-  //component did mount
+  this.elem.props = patch.props;
+  this.elem.props.children = patch.children;
+
+  this.elem.componentWillMount();
+  this.render();
+  this.elem.componentDidMount();
+
 };
 
 var proto = ShadowNode.prototype;
@@ -21,20 +26,33 @@ Object.defineProperty(proto,'parent',{
 
 proto.setPatch = function(patch){
   var oldProps = this.elem.props;
-  this.elem.props = patch.props;
-  this.elem.props.children = patch.children;
+  var newProps = patch.props;
+  newProps.children = patch;
+
+  this.elem.componentRecievedProps(oldProps,newProps);
+  this.elem.props = newProps;
+
+  this.update();
+};
+
+proto.update = function(){
+  // This is called by set state and by props updating
+  this.elem.componentWillUpdate();
   this.render();
+  this.elem.componentWillUpdate();
 };
 
 proto.remove = function(){
-  // component will unmount
-  this.elem.remove();
+  this.elem.componentWillUnmount();
+
   this.destroyed = true;
   if (this.figure){
     return this.figure.remove();
   }
-
-  // component did unmount
+  this.shadow = void 0;
+  this.figure = void 0;
+  this.native = void 0;
+  this.elem.componentDidUnmount();
 };
 
 proto.render = function(){
@@ -53,9 +71,10 @@ proto.render = function(){
 
   if (UTIL.differentTypes(lastPatch,newPatch)){
     if (this.figure) this.figure.remove();
-    return this.figure = new ShadowNode(newPatch,{
+    this.figure = new ShadowNode(newPatch,{
       shadow : this,native : this.native
     });
+    return this.figure;
   }
   if (UTIL.differentPatch(lastPatch,newPatch)){
     // component will update
