@@ -11,9 +11,10 @@
 */
 
 module.exports = function(at){
-  at.skip('nothing is updated for two false values',function(){});
-  at.skip('text gets removed',function(){});
-  at.skip('elments get removed',function(){});
-  at.skip('components get removed',function(){});
-  at.skip('children removal',function(){});
+  at.comment('nothing is updated for two false values',function(){});
+  at.comment('text gets removed',function(){});
+  at.comment('elments get removed',function(){});
+  at.comment('components get removed',function(){});
+  at.comment('children removal',function(){});
+  at.end();
 };

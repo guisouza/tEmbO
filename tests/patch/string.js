@@ -6,6 +6,7 @@
 */
 
 module.exports = function(at){
-  at.skip('when created');
-  at.skip('when updated');
+  at.comment('when created');
+  at.comment('when updated');
+  at.end();
 };

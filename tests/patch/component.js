@@ -20,33 +20,35 @@
     - the other component may use a property as its children
     - the other component may not have children
 */
-
+var createComponent,childrenAnomalies;
 module.exports = function(at){
-  at.skip('pass Falsy',function(t){
+  at.comment('pass Falsy',function(t){
     createComponent(t,'falsy',require('./falsy.js'));
   });
-  at.skip('pass String',function(t){
+  at.comment('pass String',function(t){
     createComponent(t,'string',require('./string.js'));
   });
-  at.skip('pass Native',function(t){
+  at.comment('pass Native',function(t){
     createComponent(t,'native',require('./native-element.js'));
   });
-  at.skip('pass Component',function(aat){
+  at.comment('pass Component',function(aat){
     createComponent(aat,'component',function(aaat){
-      aaat.skip('pass Falsy',function(t){
+      aaat.comment('pass Falsy',function(t){
         createComponent(t,'falsy',require('./falsy.js'));
       });
-      aaat.skip('pass String',function(t){
+      aaat.comment('pass String',function(t){
         createComponent(t,'string',require('./string.js'));
       });
-      aaat.skip('pass Native',function(t){
+      aaat.comment('pass Native',function(t){
         createComponent(t,'native',require('./native-element.js'));
       });
-      aaat.skip('childrenAnomalies',childrenAnomalies);
+      aaat.comment('childrenAnomalies',childrenAnomalies);
     });
+    aat.end();
   });
 
-  at.skip('Children Anomolies',childrenAnomalies);
+  at.comment('Children Anomolies',childrenAnomalies);
+  at.end();
 };
 
-function childrenAnomalies(){}
+childrenAnomalies = function(){};
