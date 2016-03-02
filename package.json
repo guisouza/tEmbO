@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/guisouza/tembo.git"
   },
-  "main": "dist/tembo.min.js",
+  "main": "src/Tembo.js",
   "scripts": {
     "test": "./node_modules/.bin/grunt"
   },
