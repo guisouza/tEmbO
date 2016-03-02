@@ -11,7 +11,6 @@
   },
   "main": "dist/tembo.min.js",
   "scripts": {
-    "install": "./node_modules/.bin/grunt build",
     "test": "./node_modules/.bin/grunt"
   },
   "devDependencies": {
