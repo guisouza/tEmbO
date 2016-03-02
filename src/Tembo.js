@@ -2,56 +2,58 @@ var Component = require('./interface/Component');
 var Patch = require('./interface/Patch');
 var NativeRoot = require('./render/NativeRoot');
 
+var SyncUpdate = require('./updaters/SyncUpdate');
+
 //File : src/Tembo.js
 
 var TemboConstructor = function(renderer,updater){
-  if (!updater){
-    var SyncUpdate = require('./updaters/SyncUpdate');
-    updater = new SyncUpdate();
-  }
+  updater = updater || new SyncUpdate();
+
   var tembo = {
     _ : {},
     components : {}
   };
   require('./core/Tembo.core.can.js')(tembo);
 
-  tembo._.can('createClass',function(structure){
-    return Component.extend(structure,updater);
-  });
+  tembo._.can('createClass',TemboConstructor.createClass);
 
   // File : src/Tembo.createElement.js
-  tembo._.can('createElement',function(element,props,content){
-    if (!props)
-      props = {};
-
-    if (arguments.length > 3){
-      content = [];
-      var index = 2;
-      while(index < arguments.length){
-        content.push(arguments[index]);
-        index++;
-      }
-    }
-
-    return new Patch(element,props,content);
-  });
+  tembo._.can('createElement',TemboConstructor.createElement);
+  tembo._.can('getNative',TemboConstructor.getNative);
 
   tembo._.can('render',function(component,nativeParent){
-    var root = NativeRoot.makeTree(renderer,nativeParent,component);
+    var root = NativeRoot.makeTree(renderer,updater,nativeParent,component);
     return renderer.render(root);
-  });
-
-  tembo._.can('getNative',function(component){
-    return component.renderNode.native.elem;
   });
 
   return tembo;
 };
 
+TemboConstructor.createClass = function(structure){
+  return Component.extend(structure);
+};
+
+TemboConstructor.createElement = function(element,props,content){
+  if (!props) props = {};
+
+  if (arguments.length > 3){
+    content = [];
+    var index = 2;
+    while(index < arguments.length){
+      content.push(arguments[index]);
+      index++;
+    }
+  }
+
+  return new Patch(element,props,content);
+};
+
+TemboConstructor.getNative = function(component){
+  return component.renderNode.native.elem;
+};
+
 module.exports = TemboConstructor;
 
 if (!module.parent && typeof window === 'object'){
-  var SyncUpdate = require('./updaters/SyncUpdate');
-
   window.Tembo = TemboConstructor(require('./renderers/DOM.js'),new SyncUpdate());
 }

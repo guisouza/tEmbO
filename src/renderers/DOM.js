@@ -21,14 +21,31 @@ module.exports.setId = function(element,id){
   return element.setAttribute('data-tamboId',id);
 };
 
+var applyStyle;
 module.exports.setProp = function(element,key,value){
   if (key.indexOf('on') === 0){
-    key = key.replace('on','').toLowerCase();
-    element.addEventListener(key,value,false);
-  }else{
-    if (key !== 'children')
+    key = key.toLowerCase();
+    console.log(key);
+    element[key] = value;
+  }else if (key === 'style'){
+    if (typeof value === 'string'){
+      element.style = value;
+      return;
+    }
+    Object.keys(value).forEach(applyStyle.bind(void 0,element.style,value));
+  }else if (key !== 'children'){
     element.setAttribute(key,value);
   }
+};
+
+applyStyle = function(obj,style,key){
+  switch(typeof style[key]){
+    case 'string' : obj[key] = style[key]; return;
+    case 'number' : obj[key] = style[key] + 'px'; return;
+    case 'undefined' : return;
+  }
+
+  Object.keys(style[key]).forEach(applyStyle.bind(void 0,obj[key],style[key]));
 };
 
 module.exports.appendChild = function(parent,child){
@@ -58,4 +75,7 @@ module.exports.createElement = function(tagName){
 };
 module.exports.createText = function(text){
   return DOM.createTextNode(text);
+};
+module.exports.setText = function(textNode,text){
+  textNode.textContent = text;
 };

@@ -6,9 +6,9 @@ module.exports = ShadowNode = function(patch,options){
   this.shadow = options.shadow;
   this.native = options.native;
   this.elem = new patch.type(this);
-
   this.elem.props = patch.props;
   this.elem.props.children = patch.children;
+  this.elem.setState(this.elem.getInitialState ? this.elem.getInitialState() : {});
 
   this.elem.componentWillMount();
   this.render();
@@ -26,11 +26,15 @@ Object.defineProperty(proto,'parent',{
 
 proto.setPatch = function(patch){
   var oldProps = this.elem.props;
+  this.elem._isUpdating = true;
   var newProps = patch.props;
-  newProps.children = patch;
+  newProps.children = patch.children;
 
-  this.elem.componentRecievedProps(oldProps,newProps);
+  console.log(oldProps,newProps);
+
+  this.elem.componentWillRecieveProps(newProps);
   this.elem.props = newProps;
+  this.elem.componentDidRecieveProps(oldProps);
 
   this.update();
 };

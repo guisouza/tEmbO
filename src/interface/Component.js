@@ -1,6 +1,8 @@
 var eventFunctions = [
   'componentWillMount',
   'componentDidMount',
+  'componentWillRecieveProps',
+  'componentDidRecieveProps',
   'componentWillUpdate',
   'componentDidUpdate',
   'componentWillUnmount',
@@ -8,22 +10,28 @@ var eventFunctions = [
   'render'
 ];
 var TemboComponent;
+var util = require('../render/util');
 module.exports = TemboComponent = function(renderNode){
   if (!renderNode) throw new Error('renderNode required');
   this.renderNode = renderNode;
-  this.props = {};
   this.state = void 0;
-  this._newState = this.getInitialState ? this.getInitialState() : {};
+  this._newState = {};
   this._stateChanged = false;
   this._isUpdating = true;
+  Object.keys(this).forEach(function(key){
+    if (typeof this[key] === 'function') this[key] = this[key].bind(this);
+  }.bind(this));
 };
-TemboComponent.extend = function(mixin,updater){
+TemboComponent.extend = function(mixin){
+  var personalMethods = [];
   var ExtendedComponent = function(renderNode){
     if (!(this instanceof ExtendedComponent)){
       return new ExtendedComponent(renderNode);
     }
     TemboComponent.call(this,renderNode);
-    this.updater = updater;
+    personalMethods.forEach(function(key){
+      this[key] = this[key].bind(this);
+    }.bind(this));
   };
 
   ExtendedComponent.prototype = Object.create(TemboComponent.prototype);
@@ -33,6 +41,9 @@ TemboComponent.extend = function(mixin,updater){
     if (eventFunctions.indexOf(key) > -1){
       ExtendedComponent.prototype['__' + key + '__'] = method;
     }else{
+      if (typeof method === 'function'){
+        personalMethods.push(key);
+      }
       ExtendedComponent.prototype[key] = method;
     }
   });
@@ -67,7 +78,7 @@ true;
 eventFunctions.forEach(function(eventName){
   TemboComponent.prototype[eventName] = function(){
     if (typeof this['__' + eventName + '__'] === 'function'){
-      return this['__' + eventName + '__']();
+      return this['__' + eventName + '__'].apply(this,arguments);
     }
   };
 });
@@ -76,7 +87,8 @@ TemboComponent.prototype.render = function(){
   if (!this.state || this._isUpdating){
     // component setState and all that
     this._isUpdating = false;
-    this.state = this._newState;
+    if (this.state) util.merge(this.state,this._newState);
+    else this.state = this._newState;
     this._newState = {};
   }
   var renderResult = this.__render__();
@@ -100,10 +112,10 @@ TemboComponent.prototype.setState = function(state){
   });
 
   var shouldUpdate = Object.keys(newState).length;
-
+  if (this._isUpdating) return;
   if (shouldUpdate){
-    this.updater.add(this);
+    this.renderNode.native.updater.add(this);
   }else{
-    this.updater.remove(this);
+    this.renderNode.native.updater.remove(this);
   }
 };

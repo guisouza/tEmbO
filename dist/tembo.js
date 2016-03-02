@@ -3,49 +3,60 @@ var Component = require('./interface/Component');
 var Patch = require('./interface/Patch');
 var NativeRoot = require('./render/NativeRoot');
 
+var SyncUpdate = require('./updaters/SyncUpdate');
+
 //File : src/Tembo.js
 
 var TemboConstructor = function(renderer,updater){
+  this.updater = updater || new SyncUpdate();
+
   var tembo = {
     _ : {},
     components : {}
   };
   require('./core/Tembo.core.can.js')(tembo);
 
-  tembo._.can('createClass',function(structure){
-    return Component.extend(structure,updater);
-  });
+  tembo._.can('createClass',TemboConstructor.createClass);
 
   // File : src/Tembo.createElement.js
-  tembo._.can('createElement',function(element,props,content){
-    if (!props)
-      props = {};
-
-    if (arguments.length > 3){
-      content = [];
-      var index = 2;
-      while(index < arguments.length){
-        content.push(arguments[index]);
-        index++;
-      }
-    }
-
-    return new Patch(element,props,content);
-  });
+  tembo._.can('createElement',TemboConstructor.createElement);
 
   tembo._.can('render',function(component,nativeParent){
     var root = NativeRoot.makeTree(renderer,nativeParent,component);
-    return renderer.render(component,nativeParent);
+    return renderer.render(root);
+  });
+
+  tembo._.can('getNative',function(component){
+    return component.renderNode.native.elem;
   });
 
   return tembo;
 };
 
+TemboConstructor.updater = new SyncUpdate();
+
+TemboConstructor.createClass = function(structure){
+  return Component.extend(structure,this.updater);
+};
+
+TemboConstructor.createElement = function(element,props,content){
+  if (!props) props = {};
+
+  if (arguments.length > 3){
+    content = [];
+    var index = 2;
+    while(index < arguments.length){
+      content.push(arguments[index]);
+      index++;
+    }
+  }
+
+  return new Patch(element,props,content);
+};
+
 module.exports = TemboConstructor;
 
 if (!module.parent && typeof window === 'object'){
-  var SyncUpdate = require('./updaters/SyncUpdate');
-
   window.Tembo = TemboConstructor(require('./renderers/DOM.js'),new SyncUpdate());
 }
 
@@ -75,9 +86,10 @@ module.exports = TemboComponent = function(renderNode){
   if (!renderNode) throw new Error('renderNode required');
   this.renderNode = renderNode;
   this.props = {};
-  this.state = this.getInitialState ? this.getInitialState() : {};
-  this._newState = {};
+  this.state = void 0;
+  this._newState = this.getInitialState ? this.getInitialState() : {};
   this._stateChanged = false;
+  this._isUpdating = true;
 };
 TemboComponent.extend = function(mixin,updater){
   var ExtendedComponent = function(renderNode){
@@ -90,14 +102,15 @@ TemboComponent.extend = function(mixin,updater){
 
   ExtendedComponent.prototype = Object.create(TemboComponent.prototype);
   ExtendedComponent.prototype.constructor = ExtendedComponent;
-  for(var key in mixin){
+  Object.keys(mixin).forEach(function(key){
     var method = mixin[key];
     if (eventFunctions.indexOf(key) > -1){
       ExtendedComponent.prototype['__' + key + '__'] = method;
     }else{
       ExtendedComponent.prototype[key] = method;
     }
-  }
+  });
+
   if (mixin.displayName)
     ExtendedComponent.displayName = mixin.displayName;
 
@@ -106,29 +119,35 @@ TemboComponent.extend = function(mixin,updater){
 };
 
 TemboComponent.prototype.attachProps = function(props,content){
-  var didUpdate = false;
-  var oldProps = this.props;
+  // var didUpdate = false;
+  // var oldProps = this.props;
   var newProps = {};
   if (typeof props === 'object')
-  for(var prop in props){
+  Object.keys(props).forEach(function(prop){
     newProps[prop] = props[prop];
-  }
+  });
   if (!(content instanceof Array)){
     content = [content];
   }
   newProps.children = content;
 
   this.props = newProps;
-
-  if (oldProps) Tembo.call('componentDidUpdate',this,oldProps);
-  else Tembo.call('componentDidMount',this);
 };
 
 TemboComponent.prototype.isTemboComponent =
-TemboComponent.isTemboComponent = true;
+TemboComponent.isTemboComponent =
+true;
+
+eventFunctions.forEach(function(eventName){
+  TemboComponent.prototype[eventName] = function(){
+    if (typeof this['__' + eventName + '__'] === 'function'){
+      return this['__' + eventName + '__']();
+    }
+  };
+});
 
 TemboComponent.prototype.render = function(){
-  if (this._isUpdating){
+  if (!this.state || this._isUpdating){
     // component setState and all that
     this._isUpdating = false;
     this.state = this._newState;
@@ -140,21 +159,13 @@ TemboComponent.prototype.render = function(){
 
   // }
   // this.instance = renderResult;
-  renderResult.component = this;
 
   return renderResult;
 };
 
-TemboComponent.prototype.componentWillUnmount = function(){
-  if (this.__componentWillUnmount__){
-    return this.__componentWillUnmount__();
-  }
-};
-
-TemboComponent.prototype.isTemboComponent = true;
 TemboComponent.prototype.setState = function(state){
   var newState = this._newState;
-  var curState = this.state;
+  var curState = this.state || {};
   Object.keys(state).forEach(function(key){
     newState[key] = state[key];
     if (newState[key] === curState[key]){
@@ -180,7 +191,7 @@ module.exports = function Patch(type,props,content){
   if (props)
     this.props = props;
 
-  this.children = content;
+  this.children = content instanceof Array ? content : content ? [content] : [];
 };
 
 },{}],5:[function(require,module,exports){
@@ -193,29 +204,46 @@ module.exports = NativeRoot = function(patch,options){
   this.renderer = options.renderer;
   this.parent = options.parent;
   this.children = [];
-
-  if (this.renderer){
-    this.elem = patch;
-  }else if (UTIL.isNative(patch)){
-    this.setPatch(patch);
-  }else if (this.parent){
-    this.shadowHead = new ShadowNode(patch,{ native : this });
-  }else{
-    throw new Error('what hapenned');
-  }
+  this.setContent(patch);
 };
 
 NativeRoot.makeTree = function(Renderer,container,patch){
   var root = new NativeRoot(container,{ renderer : Renderer });
   var rootComponent = new NativeRoot(patch,{ parent : root });
-  return root;
+  return [root,rootComponent];
 };
 
 var proto = NativeRoot.prototype;
 
-proto.setPatch = function(newPatch){
+proto.setContent = function(patch){
   var oldPatch = this.oldPatch;
-  this.oldPatch = newPatch;
+  this.oldPatch = patch;
+  if (this.renderer) return (this.elem = patch);
+
+  if (UTIL.differentTypes(oldPatch,patch)){
+    if (this.shadowHead) this.shadowHead.remove();
+    this.shadowHead = null;
+    if (UTIL.isNative(patch)) return this.setPatch(patch);
+    if (this.parent){
+      this.shadowHead = new ShadowNode(patch,{ native : this });
+      return;
+    }
+
+    throw new Error('what hapenned');
+  }
+
+  if (!UTIL.differentPatch(oldPatch,patch)) return;
+
+  if (this.shadowHead){
+    this.shadowHead.setPatch(patch);
+  }else{
+    this.setProps(patch);
+  }
+};
+
+proto.setPatch = function(newPatch){
+  var oldPatch = this.oldNative;
+  this.oldNative = newPatch;
   if (!oldPatch && !newPatch) return;
   if (UTIL.differentTypes(oldPatch,newPatch)){
     this.differentTypeSet(oldPatch,newPatch);
@@ -229,6 +257,11 @@ proto.setPatch = function(newPatch){
 proto.setProps = function(newPatch){
   var $ = this.Render;
   var nativeContainer = this.elem;
+
+  if (!newPatch){
+    return;
+  }
+
   if (typeof newPatch === 'string'){
     return $.setText(nativeContainer,newPatch);
   }
@@ -247,7 +280,7 @@ proto.setProps = function(newPatch){
   var max = Math.max(childLength,patchLength);
   for(var i=0; i < max; i++){
     if (i < min)
-      children[i].setPatch(childrenPatches[i]);
+      children[i].setContent(childrenPatches[i]);
     else if (childLength < patchLength)
       children.push(new NativeRoot(childrenPatches[i],{ parent : this }));
     else
@@ -263,9 +296,8 @@ proto.remove = function(){
 };
 
 proto.renderPatch = function(patch){
-  var element;
   if (!patch) return null;
-  if (typeof patch === 'string') return this.Render.createText(elem);
+  if (typeof patch === 'string') return this.Render.createText(patch);
   if (typeof patch !== 'object'){
     throw new Error('Cannot make patch of ' + patch);
   }
@@ -314,8 +346,8 @@ Object.defineProperty(proto,'index',{
     // Also possible to cache this
     var count = 0;
     for(var i=0,l=children.length; i < l; i++){
-      if (children[i] = this) break;
-      if (children[i].nativeFigure) count++;
+      if (children[i] == this) break;
+      if (children[i].elem) count++;
     }
     return count === l ? -1 : count;
   }
@@ -330,9 +362,14 @@ module.exports = ShadowNode = function(patch,options){
   this.shadow = options.shadow;
   this.native = options.native;
   this.elem = new patch.type(this);
-  this.setPatch(patch);
 
-  //component did mount
+  this.elem.props = patch.props;
+  this.elem.props.children = patch.children;
+
+  this.elem.componentWillMount();
+  this.render();
+  this.elem.componentDidMount();
+
 };
 
 var proto = ShadowNode.prototype;
@@ -345,20 +382,33 @@ Object.defineProperty(proto,'parent',{
 
 proto.setPatch = function(patch){
   var oldProps = this.elem.props;
-  this.elem.props = patch.props;
-  this.elem.props.children = patch.children;
+  var newProps = patch.props;
+  newProps.children = patch;
+
+  this.elem.componentRecievedProps(oldProps,newProps);
+  this.elem.props = newProps;
+
+  this.update();
+};
+
+proto.update = function(){
+  // This is called by set state and by props updating
+  this.elem.componentWillUpdate();
   this.render();
+  this.elem.componentWillUpdate();
 };
 
 proto.remove = function(){
-  // component will unmount
-  this.elem.remove();
+  this.elem.componentWillUnmount();
+
   this.destroyed = true;
   if (this.figure){
     return this.figure.remove();
   }
-
-  // component did unmount
+  this.shadow = void 0;
+  this.figure = void 0;
+  this.native = void 0;
+  this.elem.componentDidUnmount();
 };
 
 proto.render = function(){
@@ -377,9 +427,10 @@ proto.render = function(){
 
   if (UTIL.differentTypes(lastPatch,newPatch)){
     if (this.figure) this.figure.remove();
-    return this.figure = new ShadowNode(newPatch,{
+    this.figure = new ShadowNode(newPatch,{
       shadow : this,native : this.native
     });
+    return this.figure;
   }
   if (UTIL.differentPatch(lastPatch,newPatch)){
     // component will update
@@ -390,25 +441,29 @@ proto.render = function(){
 };
 
 },{"./util":7}],7:[function(require,module,exports){
-module.exports.isNative = function isNative(patch){
+
+var isNative,differentTypes,differentPatch,clone,deepCompare;
+
+module.exports.isNative = isNative = function(patch){
+  if (!patch) return true;
+  if (typeof patch === 'string') return true;
   var type = patch.type;
-  if (!type) return true;
-  if (typeof type === 'string') return true;
   return !type.isTemboComponent;
 };
 
-module.exports.differentTypes = function differentTypes(a,b){
+module.exports.differentTypes = differentTypes = function(a,b){
   //Check if one is null and the otherone isn't
-  debugger;
-  if ((!a && b) || (!b && a)) return true;
+  var booA = !a,booB = !b;
+  if (booA || booB) return booA !== booB;
   if (typeof a !== typeof b) return true;
-  switch(typeof a){
-    case 'string': return false;
-    case 'object': return a.type !== b.type;
-  }
+  if (typeof a === 'string') return false;
+  if (typeof a.type === 'string') return a.type !== b.type;
+  return a.type !== b.type;
 };
 
-module.exports.differentPatch = function differentPatch(a,b){
+module.exports.differentPatch = differentPatch = function(a,b){
+  var booA = !a,booB = !b;
+  if (booA || booB) return booA !== booB;
   if (typeof a === 'string') return a !== b;
   if (!deepCompare(a.props,b.props)) return true;
   if (!a.children && !b.children) return false;
@@ -422,14 +477,14 @@ module.exports.differentPatch = function differentPatch(a,b){
   });
 };
 
-module.exports.clone = function(obj){
+module.exports.clone = clone = function(obj){
   return Object.keys(obj).reduce(function(ret,key){
     ret[key] = obj[key];
     return ret;
   },{});
 };
 
-function deepCompare(a,b){
+deepCompare = function(a,b){
   var type = typeof a;
   if (type !== typeof b) return false;
   if (type !== 'object') return a === b;
@@ -440,7 +495,7 @@ function deepCompare(a,b){
     if (!(key in b)) return true;
     return !deepCompare(a[key],b[key]);
   });
-}
+};
 
 },{}],8:[function(require,module,exports){
 
@@ -515,7 +570,7 @@ proto.add = function(component){
   if (component.destroyed) return;
   if (component._isUpdating) return;
   component._isUpdating = true;
-  component.renderNode.setPatch(component.render());
+  component.renderNode.update();
 };
 
 proto.remove = function(component){

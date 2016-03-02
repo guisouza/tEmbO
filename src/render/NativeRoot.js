@@ -4,15 +4,16 @@ var ShadowNode = require('./ShadowNode');
 var NativeRoot;
 
 module.exports = NativeRoot = function(patch,options){
+  this.updater = options.updater;
   this.renderer = options.renderer;
   this.parent = options.parent;
   this.children = [];
   this.setContent(patch);
 };
 
-NativeRoot.makeTree = function(Renderer,container,patch){
-  var root = new NativeRoot(container,{ renderer : Renderer });
-  var rootComponent = new NativeRoot(patch,{ parent : root });
+NativeRoot.makeTree = function(Renderer,updater,container,patch){
+  var root = new NativeRoot(container,{ renderer : Renderer,updater : updater });
+  var rootComponent = new NativeRoot(patch,{ parent : root,updater : updater });
   return [root,rootComponent];
 };
 
@@ -85,7 +86,12 @@ proto.setProps = function(newPatch){
     if (i < min)
       children[i].setContent(childrenPatches[i]);
     else if (childLength < patchLength)
-      children.push(new NativeRoot(childrenPatches[i],{ parent : this }));
+      children.push(new NativeRoot(
+        childrenPatches[i],{
+          parent : this,
+          updater : this.updater
+        }
+      ));
     else
       children.pop().remove();
   }

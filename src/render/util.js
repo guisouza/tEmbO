@@ -1,5 +1,5 @@
 
-var isNative,differentTypes,differentPatch,clone,deepCompare;
+var isNative,differentTypes,differentPatch,clone,merge,deepCompare;
 
 module.exports.isNative = isNative = function(patch){
   if (!patch) return true;
@@ -39,6 +39,24 @@ module.exports.clone = clone = function(obj){
     ret[key] = obj[key];
     return ret;
   },{});
+};
+
+module.exports.merge = merge = function(a,b){
+  Object.keys(b).forEach(function(key){
+    if (!(key in a)){
+      a[key] = b[key];
+      return;
+    }
+    if (typeof a[key] !== typeof b[key]){
+      a[key] = b[key];
+      return;
+    }
+    if (typeof a[key] !== 'object'){
+      a[key] = b[key];
+      return;
+    }
+    merge(a[key],b[key]);
+  });
 };
 
 deepCompare = function(a,b){
