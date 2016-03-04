@@ -8,7 +8,7 @@ module.exports = ShadowNode = function(patch,options){
   this.elem = new patch.type(this);
   this.elem.props = patch.props;
   this.elem.props.children = patch.children;
-  this.elem.setState(this.elem.getInitialState ? this.elem.getInitialState() : {});
+  this.elem.state = this.elem.getInitialState ? this.elem.getInitialState() : {};
 
   this.elem.componentWillMount();
   this.render();
@@ -29,8 +29,6 @@ proto.setPatch = function(patch){
   this.elem._isUpdating = true;
   var newProps = patch.props;
   newProps.children = patch.children;
-
-  console.log(oldProps,newProps);
 
   this.elem.componentWillRecieveProps(newProps);
   this.elem.props = newProps;

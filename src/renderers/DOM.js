@@ -9,7 +9,7 @@ if (typeof document === 'object'){
   module.exports.setDOM(document);
 }
 
-module.exports.render = function(component,parent){
+module.exports.render = function(component){
   return component.instance;
 };
 
@@ -25,7 +25,6 @@ var applyStyle;
 module.exports.setProp = function(element,key,value){
   if (key.indexOf('on') === 0){
     key = key.toLowerCase();
-    console.log(key);
     element[key] = value;
   }else if (key === 'style'){
     if (typeof value === 'string'){
@@ -53,7 +52,7 @@ module.exports.appendChild = function(parent,child){
 };
 
 module.exports.insertChild = function(parent,child,index){
-  return parent.appendChild(child,parent.childNodes[index]);
+  return parent.insertBefore(child,parent.childNodes[index]);
 };
 
 module.exports.removeChild = function(parent,child){

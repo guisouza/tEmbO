@@ -63,6 +63,7 @@ deepCompare = function(a,b){
   var type = typeof a;
   if (type !== typeof b) return false;
   if (type !== 'object') return a === b;
+  if (a === null) return a === b;
   var akeys = Object.keys(a);
   var bkeys = Object.keys(b);
   if (akeys.length !== bkeys.length) return false;

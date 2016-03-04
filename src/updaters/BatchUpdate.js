@@ -1,6 +1,6 @@
 require('setimmediate');
 
-var BatchUpdate;
+var BatchUpdate,isAncestorOf,isShadowOf;
 module.exports = BatchUpdate = function(){
   this.toRerender = new Set();
   this.immediateID = void 0;
@@ -89,20 +89,20 @@ proto.remove = function(component){
   this.immediateID = false;
 };
 
-function isAncestorOf(possible,child){
+isAncestorOf = function(possible,child){
   var parent = child.parent;
   while(parent){
     if (possible === parent) return true;
     parent = parent.parent;
   }
   return false;
-}
+};
 
-function isShadowOf(possible,figure){
+isShadowOf = function(possible,figure){
   var shadow = figure.shadow;
   while(shadow){
     if (possible === shadow) return true;
     shadow = figure.shadow;
   }
   return false;
-}
+};
