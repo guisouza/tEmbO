@@ -60,6 +60,7 @@ module.exports.merge = merge = function(a,b){
 };
 
 deepCompare = function(a,b){
+  if (a === b) return true;
   var type = typeof a;
   if (type !== typeof b) return false;
   if (type !== 'object') return a === b;
