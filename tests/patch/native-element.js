@@ -10,13 +10,15 @@ var childTestIterator = require('../util').childTestIterator;
   - second gone - have 1 and 3
   - third gone - have 1 and 2
 */
+var nativeTester;
 module.exports = function(at){
-  at.skip('when created');
-  at.skip('when created child');
-  at.skip('when created grand children');
-  at.skip('when adding children');
-  at.skip('when removing children');
+  at.comment('when created');
+  at.comment('when created child');
+  at.comment('when created grand children');
+  at.comment('when adding children');
+  at.comment('when removing children');
   childTestIterator(at,nativeTester);
+  at.end();
 };
 
-function nativeTester(){}
+nativeTester = function(){};

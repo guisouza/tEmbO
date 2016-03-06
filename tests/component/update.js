@@ -12,8 +12,9 @@
 */
 
 module.exports = function(at){
-  at.skip('shadow provides props',function(){});
-  at.skip('parent provides props',function(){});
-  at.skip('set state called',function(){});
-  at.skip('can cancel update',function(){});
+  at.comment('shadow provides props',function(){});
+  at.comment('parent provides props',function(){});
+  at.comment('set state called',function(){});
+  at.comment('can cancel update',function(){});
+  at.end();
 };

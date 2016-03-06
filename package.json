@@ -9,9 +9,8 @@
     "type": "git",
     "url": "https://github.com/guisouza/tembo.git"
   },
-  "main": "dist/tembo.min.js",
+  "main": "src/Tembo.js",
   "scripts": {
-    "install": "./node_modules/.bin/grunt build",
     "test": "./node_modules/.bin/grunt"
   },
   "devDependencies": {
@@ -28,5 +27,7 @@
     "grunt-tape": "0.0.2",
     "tap": "^5.7.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "setimmediate": "latest"
+  }
 }

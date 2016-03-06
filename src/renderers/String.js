@@ -9,11 +9,11 @@ module.exports.getId = function(element){
 };
 
 module.exports.setId = function(element,id){
-  return element._tamboID = id;
+  element._tamboID = id;
 };
 
 module.exports.setProp = function(element,key,value){
-  return element.props[key] = value;
+  element.props[key] = value;
 };
 
 module.exports.getChildren = function(parent){
@@ -33,9 +33,16 @@ module.exports.replaceChild = function(parent,childA,childB){
   var children = parent.children;
   return children.splice(children.indexOf(childA),1,childB);
 };
-
+var TextWrapper;
 module.exports.createText = function(text){
   return new TextWrapper(text);
+};
+TextWrapper = function(text){
+  this.text = text;
+};
+
+TextWrapper.prototype.toString = function(){
+  return this.text;
 };
 
 module.exports.getText = function(node){
@@ -49,12 +56,12 @@ module.exports.setText = function(node,text){
 module.exports.isText = function(textNode){
   return textNode instanceof TextWrapper;
 };
-
+var FakeElem;
 module.exports.createElement = function(tagName,props){
   return new FakeElem(tagName,props);
 };
 
-function FakeElem(tagName,props){
+FakeElem = function(tagName,props){
   this.tagName = tagName;
   this.props = Object.create(props);
   delete this.props.children;
@@ -62,7 +69,7 @@ function FakeElem(tagName,props){
 };
 
 var proto = FakeElem.prototype;
-
+var reduceProperties;
 proto.toString = function(){
   var props = this.props;
   var tagName = this.tagName;
@@ -73,7 +80,8 @@ proto.toString = function(){
     '>' + this.children.join('') + '<' + this.tagName + '>';
 };
 
-function reduceProperties(props,str,key){
+var reduceObject;
+reduceProperties = function(props,str,key){
   var value = props[key];
   switch(typeof value){
     case 'undefined':
@@ -90,16 +98,8 @@ function reduceProperties(props,str,key){
         .reduce(reduceObject.bind(void 0,value),'') + '\"';
   }
   return str + ' ' + key + '=\"' + value + '\"';
-}
+};
 
-function reduceObject(obj,str,key){
+reduceObject = function(obj,str,key){
   return str + ';' + key + ':' + obj[key];
-}
-
-function TextWrapper(text){
-  this.text = text;
-}
-
-TextWrapper.prototype.toString = function(){
-  return this.text;
 };
