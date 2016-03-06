@@ -53,6 +53,8 @@ TemboConstructor.getNative = function(component){
   return component.renderNode.native.elem;
 };
 
+TemboConstructor.__spread = Object.assign.bind(Object);
+
 module.exports = TemboConstructor;
 
 if (!module.parent && typeof window === 'object'){
