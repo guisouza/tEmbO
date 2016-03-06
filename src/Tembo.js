@@ -23,7 +23,8 @@ var TemboConstructor = function(renderer,updater){
 
   tembo._.can('render',function(component,nativeParent){
     var root = NativeRoot.makeTree(renderer,updater,nativeParent,component);
-    return renderer.render(root);
+    renderer.render(root);
+    return root[1].shadowHead.elem;
   });
 
   return tembo;
