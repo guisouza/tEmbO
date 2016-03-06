@@ -32,6 +32,8 @@ module.exports.setProp = function(element,key,value){
       return;
     }
     Object.keys(value).forEach(applyStyle.bind(void 0,element.style,value));
+  }else if (key == 'className'){
+    element.className = value;
   }else if (key !== 'children'){
     element.setAttribute(key,value);
   }
