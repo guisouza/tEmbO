@@ -3,12 +3,12 @@ var UTIL = require('./util');
 var ShadowNode = require('./ShadowNode');
 var NativeRoot;
 
-module.exports = NativeRoot = function(patch,options){
+module.exports = NativeRoot = function(patch,options,i){
   this.updater = options.updater;
   this.renderer = options.renderer;
   this.parent = options.parent;
   this.children = [];
-  this.setContent(patch);
+  this.setContent(patch,i);
 };
 
 NativeRoot.makeTree = function(Renderer,updater,container,patch){
@@ -19,30 +19,44 @@ NativeRoot.makeTree = function(Renderer,updater,container,patch){
 
 var proto = NativeRoot.prototype;
 
-proto.setContent = function(patch){
+proto.resetID = function(i){
+  this.index = i;
+  if (this.elem && this.Render.isElement(this.elem)){
+    this.Render.setProp(this.elem,'data-tambo-id',this.id);
+  }
+  this.children.forEach(function(child){
+    child.resetID();
+  });
+};
+
+proto.setContent = function(patch,i){
   var oldPatch = this.oldPatch;
   this.oldPatch = patch;
   if (this.renderer) return (this.elem = patch);
+  if (i === void 0) i = this.index;
 
   if (UTIL.differentTypes(oldPatch,patch)){
     if (this.shadowHead) this.shadowHead.remove();
     this.shadowHead = null;
-    if (UTIL.isNative(patch)) return this.setPatch(patch);
-    if (this.parent){
+    if (UTIL.isNative(patch)){
+      return this.setPatch(patch);
+    }else if (this.parent){
       this.shadowHead = new ShadowNode(patch,{ native : this });
-      return;
     }
-
-    throw new Error('what hapenned');
+    return this.resetID(i);
   }
 
-  if (!UTIL.differentPatch(oldPatch,patch)) return;
+  if (!UTIL.differentPatch(oldPatch,patch)){
+    if (i !== this.index) this.resetID(i);
+    return;
+  }
 
   if (this.shadowHead){
     this.shadowHead.setPatch(patch);
   }else{
     this.setProps(patch);
   }
+  if (i !== this.index) this.resetID(i);
 };
 
 proto.setPatch = function(newPatch){
@@ -84,18 +98,17 @@ proto.setProps = function(newPatch){
   var max = Math.max(childLength,patchLength);
   for(var i=0; i < max; i++){
     if (i < min)
-      children[i].setContent(childrenPatches[i]);
+      children[i].setContent(childrenPatches[i],i);
     else if (childLength < patchLength)
       children.push(new NativeRoot(
         childrenPatches[i],{
           parent : this,
           updater : this.updater
-        }
+        },i
       ));
     else
       children.pop().remove();
   }
-
   return nativeContainer;
 };
 
@@ -144,6 +157,14 @@ proto.differentTypeSet = function(oldPatch,newPatch){
 Object.defineProperty(proto,'Render',{
   get : function(){
     return this.parent ? this.parent.Render : this.renderer;
+  }
+});
+
+Object.defineProperty(proto,'id',{
+  get : function(){
+    if (!this.parent) return;
+    var parentid = this.parent.id;
+    return parentid === void 0 ? '0' : parentid + '.' + this.index;
   }
 });
 
