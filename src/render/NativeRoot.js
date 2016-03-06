@@ -22,11 +22,8 @@ var proto = NativeRoot.prototype;
 proto.resetID = function(i){
   this.index = i;
   if (this.elem && this.Render.isElement(this.elem)){
-    this.Render.setProp(this.elem,'data-tambo-id',this.id);
+    this.Render.setID(this.elem,this.id);
   }
-  this.children.forEach(function(child){
-    child.resetID();
-  });
 };
 
 proto.setContent = function(patch,i){

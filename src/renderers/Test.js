@@ -31,11 +31,11 @@ proto.render = function(component){
   return component;
 };
 
-proto.getId = function(node){
+proto.getID = function(node){
   return node.ID;
 };
 
-proto.setId = function(node,id){
+proto.setID = function(node,id){
   node.ID = id;
 };
 
@@ -98,4 +98,8 @@ proto.isText = function(node){
 
 proto.createElement = function(tagName){
   return new TreeNode(tagName);
+};
+
+proto.isElement = function(node){
+  return node instanceof TreeNode;
 };

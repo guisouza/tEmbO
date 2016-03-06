@@ -13,11 +13,11 @@ module.exports.render = function(component){
   return component.instance;
 };
 
-module.exports.getId = function(element){
+module.exports.getID = function(element){
   return element.getAttribute('data-tamboId');
 };
 
-module.exports.setId = function(element,id){
+module.exports.setID = function(element,id){
   return element.setAttribute('data-tamboId',id);
 };
 
