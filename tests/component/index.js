@@ -30,5 +30,8 @@ tap.test('Component',function(at){
       - when parent removes children - will unmount
     */
     aat.test('unmount',require('./unmount.js'));
+
+    aat.end();
   });
+  at.end();
 });

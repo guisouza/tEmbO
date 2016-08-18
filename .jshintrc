@@ -1,0 +1,12 @@
+{
+  "globals":{
+    "console": true
+  },
+  "browserify": true,
+  "shadow": true,
+  "forin": true,
+  "funcscope": true,
+  "latedef": true,
+  "unused": true,
+  "undef": true
+}

@@ -53,5 +53,5 @@ tap.test('Patch',function(at){
   */
 
   at.test('falsy value',require('./component.js'));
-
+  at.end();
 });

@@ -2,7 +2,7 @@ var EE = require('events').EventEmitter;
 
 var TestRenderer;
 
-var TreeNode = function(tagName,props,parent){
+var TreeNode = function(tagName){
   EE.call(this);
   if (typeof tagName !== 'string') throw new Error('not sure how to create non-string object');
   this.tagName = tagName;
@@ -27,17 +27,15 @@ module.exports.TextNode = TextNode;
 
 var proto = TestRenderer.prototype = Object.create(EE.prototype);
 
-proto.render = function(component,args){
-  var parent = args[1];
-  this.appendChild(parent,component.instance);
-  return component.instance;
+proto.render = function(component){
+  return component;
 };
 
-proto.getId = function(node){
+proto.getID = function(node){
   return node.ID;
 };
 
-proto.setId = function(node,id){
+proto.setID = function(node,id){
   node.ID = id;
 };
 
@@ -50,7 +48,7 @@ proto.getChildren = function(parent){
 };
 
 proto.appendChild = function(parent,child){
-  this.insertChild(parent,child,parent.length);
+  this.insertChild(parent,child,parent.children.length);
 };
 
 proto.insertChild = function(parent,child,i){
@@ -67,8 +65,11 @@ proto.insertChild = function(parent,child,i){
 proto.removeChild = function(parent,child){
   var i = parent.children.indexOf(child);
   if (i === -1) throw 'remove: old not found';
-  parent.splice(i,1);
+  parent.children.splice(i,1);
   child.parent = void 0;
+  this.emit('remove',parent,child);
+  parent.emit('removeChild',child);
+  child.emit('remove',child);
 };
 
 proto.replaceChild = function(parent,oldNode,newNode){
@@ -77,9 +78,6 @@ proto.replaceChild = function(parent,oldNode,newNode){
   if (i === -1) throw 'replace: old not found';
   this.removeChild(parent,oldNode);
   this.insertChild(parent,newNode,i);
-  this.emit('remove',parent,child);
-  parent.emit('removeChild',child);
-  child.emit('remove',parent);
 };
 
 proto.createText = function(text){
@@ -91,7 +89,7 @@ proto.getText = function(node){
 };
 
 proto.setText = function(node,text){
-  return node.text = text;
+  node.text = text;
 };
 
 proto.isText = function(node){
@@ -100,4 +98,8 @@ proto.isText = function(node){
 
 proto.createElement = function(tagName){
   return new TreeNode(tagName);
+};
+
+proto.isElement = function(node){
+  return node instanceof TreeNode;
 };

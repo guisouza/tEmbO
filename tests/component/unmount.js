@@ -6,129 +6,173 @@ var triggerer = new EE();
 var renderer = new TestRender();
 var tembo = new Tembo(renderer);
 
+var createChildTest,createReturnReplacer,createUnmountListener,runUnmountTest,runReplacement;
 module.exports = function(at){
-  at.skip('by developer',function(t){});
-  at.test('replaced by null',function(aat){
-    aat.test('by shadow',function(t){
-      var fmt = {};
-      var sel = createReturnReplacer();
-      var fel = createUnmountListener(t,fmt);
-      tembo.render(tembo.createElement(sel,{
-        willNull : true,
-        element : tembo.createElement(fel,{ type : 'string' },[])
-      },[]),root);
-      runUnmountTest(t,fmt,null);
-      triggerer.removeListeners('replaceReturn');
-    });
-    aat.test('by parent',function(aaat){
-      aaat.test('empty children',function(t){
-        var fmt = {};
-        var pel = createReturnReplacer();
-        var cel = createUnmountListener(t,fmt);
-        tembo.render(tembo.createElement(pel,{
-          element : tembo.createElement('container',{},[
-            tembo.createElement(cel,{},[])
-          ])
-        },[]),root);
-        runUnmountTest(t,fmt,tembo.createElement('container',{},[]));
-        triggerer.removeListeners('replaceReturn');
-      });
-      aaat.test('first child',function(t){
-        createChildTest(t,[
-          { prefix : 'first' },
-          'second',
-          'third'
-        ]);
-      });
-      aaat.test('second child',function(t){
-        createChildTest(t,[
-          'first',
-          { prefix : 'second' },
-          'third'
-        ]);
-      });
-      aaat.test('third child',function(t){
-        createChildTest(t,[
-          'first',
-          'second',
-          { prefix : 'third' }
-        ]);
-      });
-      aaat.test('top two children',function(t){
-        createChildTest(t,[
-          { prefix : 'first' },
-          { prefix : 'second' },
-          third
-        ]);
-        createChildTest(t,[
-          'first',
-          { prefix : 'second' },
-          { prefix : 'third' }
-        ]);
-      });
-      aaat.test('bottom two children',function(t){
-        createChildTest(t,[
-          'first',
-          { prefix : 'second' },
-          { prefix : 'third' }
-        ]);
-      });
-      aaat.test('middle of four children',function(t){
-        createChildTest(t,[
-          'first',
-          { prefix : 'second' },
-          { prefix : 'third' },
-          'fourth'
-        ]);
-      });
-      aaat.test('four children individually',function(t){
-        createChildTest(t,[
-          { prefix : 'first' },
-          { prefix : 'second' },
-          { prefix : 'third' },
-          { prefix : 'fourth' }
-        ]);
-      });
-    });
-  });
-  at.skip('replaced by something',function(){});
+  at.comment('by developer',function(){});
+  at.test('replaced by null',{ bail : true },runReplacement.bind(void 0,null));
+  at.test('replaced by text',{ bail : true },runReplacement.bind(void 0,'replacement'));
+  at.test(
+    'replaced by native-element',{ bail : true },
+    runReplacement.bind(void 0,tembo.createElement('replacement',{}))
+  );
+  at.test(
+    'replaced by component',{ bail : true },
+    runReplacement.bind(void 0,tembo.createElement(
+      tembo.createClass({
+        render : function(){ return 'replacement'; }
+      }),{}
+    ))
+  );
+  at.end();
 };
 
-function createChildTest(t,children){
+runReplacement = function(replacement,aat){
+  aat.test('by shadow',function(t){
+    var root = new TestRender.TreeNode('root');
+
+    var fmt = {};
+    var sel = createReturnReplacer();
+    var fel = createUnmountListener(t,fmt);
+    tembo.render(tembo.createElement(sel,{
+      willNull : true,
+      element : tembo.createElement(fel,{ prefix : 'self',type : 'string' },[])
+    },[]),root);
+    var expected = replacement ? [replacement] : [];
+    runUnmountTest(t,fmt,replacement,['self'],expected);
+    triggerer.removeAllListeners('replaceReturn');
+    t.end();
+  });
+  aat.test('by parent',function(aaat){
+    aaat.test('empty children',function(t){
+      var root = new TestRender.TreeNode('root');
+      var fmt = {};
+      var pel = createReturnReplacer();
+      var cel = createUnmountListener(t,fmt);
+      tembo.render(tembo.createElement(pel,{
+        element : tembo.createElement('container',{},[
+          tembo.createElement(cel,{ prefix : 'child' },[])
+        ])
+      },[]),root);
+      var expected = replacement ? [replacement] : [];
+      runUnmountTest(t,fmt,tembo.createElement('container',{},replacement),['child'],expected);
+      triggerer.removeAllListeners('replaceReturn');
+      t.end();
+    });
+
+    aaat.test('first child',function(t){
+      createChildTest(t,replacement,[
+        { prefix : 'first' },
+        'second',
+        'third'
+      ]);
+
+      t.end();
+    });
+    aaat.test('second child',function(t){
+      createChildTest(t,replacement,[
+        'first',
+        { prefix : 'second' },
+        'third'
+      ]);
+
+      t.end();
+    });
+    aaat.test('third child',function(t){
+      createChildTest(t,replacement,[
+        'first',
+        'second',
+        { prefix : 'third' }
+      ]);
+
+      t.end();
+    });
+    aaat.test('top two children',function(t){
+      createChildTest(t,replacement,[
+        { prefix : 'first' },
+        { prefix : 'second' },
+        'third'
+      ]);
+      createChildTest(t,replacement,[
+        'first',
+        { prefix : 'second' },
+        { prefix : 'third' }
+      ]);
+
+      t.end();
+    });
+    aaat.test('bottom two children',function(t){
+      createChildTest(t,replacement,[
+        'first',
+        { prefix : 'second' },
+        { prefix : 'third' }
+      ]);
+
+      t.end();
+    });
+    aaat.test('middle of four children',function(t){
+      createChildTest(t,replacement,[
+        'first',
+        { prefix : 'second' },
+        { prefix : 'third' },
+        'fourth'
+      ]);
+
+      t.end();
+    });
+    aaat.test('four children individually',function(t){
+      createChildTest(t,replacement,[
+        { prefix : 'first' },
+        { prefix : 'second' },
+        { prefix : 'third' },
+        { prefix : 'fourth' }
+      ]);
+      t.end();
+    });
+    aaat.end();
+  });
+
+  aat.end();
+};
+
+createChildTest = function(t,replacement,children){
+  var root = new TestRender.TreeNode('root');
   var fmt = {};
   var pel = createReturnReplacer();
   var cel = createUnmountListener(t,fmt);
   var expectedUnmount = [];
+  var newChildren = [];
   var firstChildren = children.map(function(child){
-    if (typeof child === 'string') return child;
+    if (typeof child === 'string'){
+      newChildren.push(child);
+      return child;
+    }
+    if (replacement) newChildren.push(replacement);
     expectedUnmount.push(child.prefix);
     return tembo.createElement(cel,child,[]);
   });
-  var newChildren = children.map(function(child){
-    if (typeof child === 'string') return child;
-    return null;
-  });
+
   tembo.render(tembo.createElement(pel,{
     element : tembo.createElement('container',{},firstChildren)
   },[]),root);
-  runUnmountTest(t,fmt,tembo.createElement('container',{},newChildren),expectedUnmount);
-  triggerer.removeListeners('replaceReturn');
-}
+  runUnmountTest(t,fmt,tembo.createElement('container',{},newChildren),expectedUnmount,newChildren);
+  triggerer.removeAllListeners('replaceReturn');
+};
 
-function createReturnReplacer(){
+createReturnReplacer = function(){
   return tembo.createClass({
     componentDidMount : function(){
+      var _this = this;
       triggerer.on('replaceReturn',function(newObj){
-        this.setState({ ret : newObj });
+        _this.setState({ ret : newObj });
       });
     },
     render : function(){
       return (this.state.ret !== void 0) ? this.state.ret : this.props.element;
     }
   });
-}
+};
 
-function createUnmountListener(t,mountTriggers){
+createUnmountListener = function(t,mountTriggers){
   return tembo.createClass({
     componentDidMount : function(){
       mountTriggers.self = this;
@@ -139,43 +183,48 @@ function createUnmountListener(t,mountTriggers){
       mountTriggers.didUnmount.push(this.props.prefix);
     },
     render : function(){
-      return 'string';
+      return tembo.createElement('temporary',{});
     }
   });
-}
+};
 
-function runUnmountTest(t,mountTriggers,replacement,expectedUnmount){
+runUnmountTest = function(t,mountTriggers,replacement,expectedUnmount,expected){
 
   t.notOk(mountTriggers.beforeUnmount,'beforeUnmount should be false');
-  var native,parent,expected;
-  if (replacement && replacement.props && replacement.props.children){
-    expected = replacement.props.children.filter(function(child){
-      return !!child;
-    });
-  }
 
-  var l = parent.children.length;
-  var el = expected ? expected.length : 0;
+  var native,parent;
+
+  var el = expected.length;
+  var l;
 
   t.test('beforeUnmount',function(beforeUnmount){
-    native = tembo.findNative(mountTriggers.self);
+    native = tembo.getNative(mountTriggers.self);
     beforeUnmount.ok(native,'the obj has a native element');
     parent = native.parent;
     beforeUnmount.ok(parent,'the parent exists');
+    l = parent.children.length;
     beforeUnmount.ok(parent.children.length,'has children');
     beforeUnmount.notEqual(parent.children.indexOf(native),-1,'native is a member of those children');
+    beforeUnmount.end();
   });
 
   triggerer.emit('replaceReturn',replacement);
   t.test('afterUnmount',function(afterUnmount){
-    t.equal(parent.children.length,el,'the number of children are predictable');
-    t.equal(parent.children.indexOf(native),-1,'native is not a member of those children');
+    afterUnmount.equal(parent.children.length,el,'the number of children are predictable');
+    afterUnmount.equal(parent.children.indexOf(native),-1,'native is not a member of those children');
     parent.children.forEach(function(child,i){
-      t.equal(child.text,expected[i],'all other children stay in tact');
+      if (typeof expected[i] === 'string'){
+        afterUnmount.equal(child.text,expected[i],'all other children stay in tact');
+      }
     });
-    t.equal(mountTriggers.beforeUnmount.length,l-el,'componentWillUnmount triggered a predictable number of times');
-    mountTriggers.beforeMount.forEach(function(child,i){
-      t.equal(child,expectedUnmount[i],'all removed children had component will mount triggered');
+    afterUnmount.equal(
+      mountTriggers.didUnmount.length,expectedUnmount.length,
+      'componentWillUnmount triggered a predictable number of times'
+    );
+    mountTriggers.didUnmount.forEach(function(child,i){
+      var i = expectedUnmount.indexOf(child);
+      afterUnmount.notEqual(i,-1,'all removed children had component will mount triggered');
     });
+    afterUnmount.end();
   });
-}
+};

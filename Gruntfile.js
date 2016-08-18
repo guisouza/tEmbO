@@ -111,8 +111,8 @@ module.exports = function(grunt){
 
   grunt.registerTask('hint',['jshint','jscs']);
 
-  grunt.registerTask('test',['tape','jasmine']);
+  grunt.registerTask('test',['tape']);
 
-  grunt.registerTask('default',['hint','browserify','uglify','watch']);
+  grunt.registerTask('default',['hint','test','browserify','uglify','watch']);
 
 };

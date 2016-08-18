@@ -9,67 +9,74 @@ if (typeof document === 'object'){
   module.exports.setDOM(document);
 }
 
-module.exports.render = function(component,args){
-  var parent = args[1];
-  parent.appendChild(component.instance);
+module.exports.render = function(component){
   return component.instance;
 };
 
-module.exports.getId = function(element){
+module.exports.getID = function(element){
   return element.getAttribute('data-tamboId');
 };
 
-module.exports.setId = function(element,id){
+module.exports.setID = function(element,id){
   return element.setAttribute('data-tamboId',id);
 };
 
+var applyStyle;
 module.exports.setProp = function(element,key,value){
-  return element.setAttribute(key,value);
+  if (key.indexOf('on') === 0){
+    key = key.toLowerCase();
+    element[key] = value;
+  }else if (key === 'style'){
+    if (typeof value === 'string'){
+      element.style = value;
+      return;
+    }
+    Object.keys(value).forEach(applyStyle.bind(void 0,element.style,value));
+  }else if (key == 'className'){
+    element.className = value;
+  }else if (key !== 'children'){
+    element.setAttribute(key,value);
+  }
 };
 
-module.exports.getChildren = function(parent){
-  return Array.prototype.slice.call(parent.children);
+applyStyle = function(obj,style,key){
+  switch(typeof style[key]){
+    case 'string' : obj[key] = style[key]; return;
+    case 'number' : obj[key] = style[key] + 'px'; return;
+    case 'undefined' : return;
+  }
+
+  Object.keys(style[key]).forEach(applyStyle.bind(void 0,obj[key],style[key]));
 };
 
 module.exports.appendChild = function(parent,child){
   return parent.appendChild(child);
 };
 
+module.exports.insertChild = function(parent,child,index){
+  return parent.insertBefore(child,parent.childNodes[index]);
+};
+
 module.exports.removeChild = function(parent,child){
   return parent.removeChild(child);
 };
 
-module.exports.replaceChild = function(parent,childA,childB){
-  return parent.replaceChild(childA,childB);
+module.exports.replaceChild = function(parent,oldChild,newChild){
+  return parent.replaceChild(newChild,oldChild);
 };
 
-module.exports.createText = function(text){
-  return DOM.createTextNode(text);
+module.exports.isElement = function(textNode){
+  return textNode.nodeType === 1;
 };
-
-module.exports.getText = function(node){
-  return node.textContent;
-};
-
-module.exports.setText = function(node,text){
-  return node.textContent = text;
-};
-
 module.exports.isText = function(textNode){
   return textNode.nodeType === 3;
 };
-
-module.exports.createElement = function(tagName,props){
-  var element = DOM.createElement(tagName);
-  for(var attr in props){
-
-    if (attr.indexOf('on') === 0){
-      var event = attr.replace('on','').toLowerCase();
-      element.addEventListener(event,props[attr],false);
-    }else{
-      if (attr !== 'children')
-      element.setAttribute(attr,props[attr]);
-    }
-  }
-  return element;
+module.exports.createElement = function(tagName){
+  return DOM.createElement(tagName);
+};
+module.exports.createText = function(text){
+  return DOM.createTextNode(text);
+};
+module.exports.setText = function(textNode,text){
+  textNode.textContent = text;
 };
